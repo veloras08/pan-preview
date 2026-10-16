@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>存储容量</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;position:relative;overflow:hidden;background:#fff;color:#14161b;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif">
+<header style="display:flex;align-items:center;gap:6px;padding:52px 12px 4px 8px"><button aria-label="返回" style="width:40px;height:40px;border:0;border-radius:50%;background:transparent;display:grid;place-items:center;color:#14161b;flex:0 0 40px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div style="flex:1;min-width:0;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">存储容量</div></header><main style="padding:8px 16px 0;display:flex;flex-direction:column;gap:12px"><section style="background:#fafafa;border:1px solid #ececef;border-radius:22px;padding:14px 16px;"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:15px;font-weight:600">已用 5.5 GB</span><span style="font-size:12px;color:#8a8f99">共 6 GB</span></div><div style="height:8px;background:#eef1f5;border-radius:999px;overflow:hidden;margin:10px 0 6px"><i style="display:block;width:91.4%;height:100%;background:{{accent}};border-radius:999px"></i></div><div style="font-size:12px;color:#8a8f99;line-height:1.6">免费用户 6 GB。超出后暂停上传、导入和保存，不会删除文件。</div></section><section style="background:#fafafa;border:1px solid #ececef;border-radius:22px;padding:4px 16px;"><div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:14px;border-bottom:1px solid #ececef;"><span>视频</span><span style="color:#8a8f99;text-align:right">960 MB</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:14px;border-bottom:1px solid #ececef;"><span>图片</span><span style="color:#8a8f99;text-align:right">9 MB</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:14px;border-bottom:1px solid #ececef;"><span>其他（音频、文档、压缩包）</span><span style="color:#8a8f99;text-align:right">1.2 GB</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:14px;"><span>其他已用</span><span style="color:#8a8f99;text-align:right">3.4 GB<br><span style="font-size:11px">示例数据</span></span></div></section></main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#3A6DF2","options":["#3A6DF2","#306EFF","#2350D1"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#3A6DF2' };
+  }
+}
+</script>
+</body>
+</html>

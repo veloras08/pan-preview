@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>资源分享盘 移动端视觉 v7</title>
+<style>
+:root{--bg:#eceef2;--ink:#14161b;--muted:#6a7180;--panel:#fff;--accent:#3A6DF2}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font:14px/1.5 "PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif}
+#vp{position:absolute;inset:0;cursor:grab;touch-action:none}#vp.drag{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0}
+.frame{position:absolute}
+.frame .lbl{position:absolute;left:0;bottom:100%;margin-bottom:8px;font-size:13px;color:var(--muted);white-space:nowrap}
+.frame img{display:block;width:100%;height:100%;border-radius:6px;box-shadow:0 1px 2px rgba(16,24,40,.08),0 8px 24px rgba(16,24,40,.10);background:#fff;cursor:zoom-in;-webkit-user-drag:none;user-select:none}
+.ntitle{position:absolute;font-size:72px;font-weight:700;line-height:1.15;letter-spacing:-1px}
+.sticky{position:absolute;background:#fff4b8;border-radius:4px;padding:18px;font-size:20px;line-height:1.55;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.bar{position:fixed;right:16px;bottom:16px;display:flex;gap:4px;background:var(--panel);border-radius:12px;padding:4px;box-shadow:0 4px 18px rgba(16,24,40,.14)}
+.bar button{border:0;background:none;min-width:40px;height:40px;border-radius:8px;font:inherit;font-size:15px;cursor:pointer;color:var(--ink)}
+.bar button:hover{background:#f0f1f4}.bar span{min-width:56px;display:grid;place-items:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.top{position:fixed;left:16px;top:16px;background:var(--panel);border-radius:12px;padding:8px 14px;box-shadow:0 4px 18px rgba(16,24,40,.14);font-weight:600;max-width:calc(100% - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top small{font-weight:400;color:var(--muted);margin-left:8px}
+#lb{position:fixed;inset:0;background:rgba(14,16,22,.82);display:none;align-items:center;justify-content:center;gap:16px;z-index:10;padding:16px}
+#lb.on{display:flex}#lb img{max-height:calc(100% - 60px);max-width:100%;border-radius:10px;background:#fff}
+#lb .cap{position:absolute;top:14px;left:0;right:0;text-align:center;color:#fff;font-size:15px}
+#lb button{border:0;background:rgba(255,255,255,.14);color:#fff;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer;flex:none}
+#lb .x{position:absolute;top:10px;right:14px;width:40px;height:40px}
+@media (max-width:600px){#lb .nav{display:none}}
+</style></head><body>
+<div class="top">资源分享盘 移动端视觉 v7<small>拖动平移 · 滚轮/双指缩放 · 点击单屏放大</small></div>
+<div id="vp"><div id="world"></div></div>
+<div class="bar"><button id="zo" aria-label="缩小">−</button><span id="zl">100%</span><button id="zi" aria-label="放大">+</button><button id="fit">适配</button></div>
+<div id="lb" role="dialog" aria-modal="true"><div class="cap" id="cap"></div><button class="nav" id="prev" aria-label="上一屏">‹</button><img id="lbi" alt=""><button class="nav" id="next" aria-label="下一屏">›</button><button class="x" id="cls" aria-label="关闭">×</button></div>
+<script>
+const D={"title": "资源分享盘 移动端视觉 v7", "boards": [{"src": "screens/01-Main.png", "t": "最近", "x": 0, "y": 0, "w": 390, "h": 844}, {"src": "screens/02-Files.png", "t": "文件", "x": 470, "y": 0, "w": 390, "h": 844}, {"src": "screens/03-Spaces.png", "t": "空间", "x": 940, "y": 0, "w": 390, "h": 844}, {"src": "screens/04-Mine.png", "t": "我的", "x": 1410, "y": 0, "w": 390, "h": 844}, {"src": "screens/05-Transfer.png", "t": "传输", "x": 1880, "y": 0, "w": 390, "h": 844}, {"src": "screens/06-SearchPage.png", "t": "文件 · 搜索", "x": 2350, "y": 0, "w": 390, "h": 844}, {"src": "screens/07-FolderDetail.png", "t": "文件夹 · 我上传的", "x": 0, "y": 1000, "w": 390, "h": 844}, {"src": "screens/08-FileActions.png", "t": "文件操作", "x": 470, "y": 1000, "w": 390, "h": 844}, {"src": "screens/09-AddSheet.png", "t": "添加到文件", "x": 940, "y": 1000, "w": 390, "h": 844}, {"src": "screens/10-FilesMenu.png", "t": "文件 · 更多", "x": 1410, "y": 1000, "w": 390, "h": 844}, {"src": "screens/11-SortSheet.png", "t": "排序方式", "x": 1880, "y": 1000, "w": 390, "h": 844}, {"src": "screens/12-MovePicker.png", "t": "选择目标文件夹", "x": 2350, "y": 1000, "w": 390, "h": 844}, {"src": "screens/13-Space.png", "t": "空间详情 · 全部", "x": 0, "y": 2000, "w": 390, "h": 844}, {"src": "screens/14-SpaceRecent.png", "t": "空间详情 · 更新", "x": 470, "y": 2000, "w": 390, "h": 844}, {"src": "screens/15-SpaceFolder.png", "t": "空间 · 文件夹", "x": 940, "y": 2000, "w": 390, "h": 844}, {"src": "screens/16-SpaceMenu.png", "t": "空间菜单 · 关注者", "x": 1410, "y": 2000, "w": 390, "h": 844}, {"src": "screens/17-SpaceFileMenu.png", "t": "空间文件操作 · 关注者", "x": 1880, "y": 2000, "w": 390, "h": 844}, {"src": "screens/18-SpaceInvalid.png", "t": "空间已失效", "x": 2350, "y": 2000, "w": 390, "h": 844}, {"src": "screens/19-SpaceOwner.png", "t": "空间详情 · 创建者", "x": 0, "y": 3000, "w": 390, "h": 844}, {"src": "screens/20-Publish.png", "t": "添加到空间", "x": 470, "y": 3000, "w": 390, "h": 844}, {"src": "screens/21-SpaceMenuOwner.png", "t": "空间菜单 · 创建者", "x": 940, "y": 3000, "w": 390, "h": 844}, {"src": "screens/22-SpaceFileMenuOwner.png", "t": "空间文件操作 · 创建者", "x": 1410, "y": 3000, "w": 390, "h": 844}, {"src": "screens/23-CreateSpace.png", "t": "创建空间", "x": 1880, "y": 3000, "w": 390, "h": 844}, {"src": "screens/24-PreviewTrial.png", "t": "预览 · 空间文件试看", "x": 0, "y": 4000, "w": 390, "h": 844}, {"src": "screens/25-PreviewEnded.png", "t": "预览 · 试看结束", "x": 470, "y": 4000, "w": 390, "h": 844}, {"src": "screens/26-PreviewOwn.png", "t": "预览 · 个人文件", "x": 940, "y": 4000, "w": 390, "h": 844}, {"src": "screens/27-SavedAll.png", "t": "最近保存", "x": 1410, "y": 4000, "w": 390, "h": 844}, {"src": "screens/28-Shares.png", "t": "我的分享", "x": 1880, "y": 4000, "w": 390, "h": 844}, {"src": "screens/29-Storage.png", "t": "存储容量", "x": 2350, "y": 4000, "w": 390, "h": 844}, {"src": "screens/30-TransferMenu.png", "t": "传输 · 更多", "x": 0, "y": 5000, "w": 390, "h": 844}, {"src": "screens/31-Dialogs.png", "t": "确认弹窗（一）", "x": 470, "y": 5000, "w": 390, "h": 844}, {"src": "screens/32-Dialogs2.png", "t": "确认弹窗（二）", "x": 940, "y": 5000, "w": 390, "h": 844}], "notes": [{"x": 0, "y": -260, "text": "资源分享盘 · 移动端视觉 v7（逐屏对照《资源分享盘交互原型》重做：页面、弹层、弹窗的结构与文案均以原型为准；会员开通流程不设计，仅保留入口）", "kind": "title1", "maxW": 1800, "id": "title"}, {"x": 2840, "y": 0, "w": 360, "fill": "yellow", "text": "分行：第1行 四个 Tab 根页面 + 传输 + 文件搜索；第2行 文件的子页面与弹层；第3行 空间（关注者视角）；第4行 空间（创建者视角）与创建空间；第5行 预览与「我的」子页；第6行 传输操作与确认弹窗。", "id": "rows"}, {"x": 2840, "y": 300, "w": 360, "fill": "yellow", "text": "与原型的视觉差异（已确认保留）：底部导航带文字标签与滑动高亮；「空间」Tab 用叠层图标；主色 #3A6DF2 替代原型里的绿色强调。", "id": "diff"}]};
+const W=document.getElementById('world'),V=document.getElementById('vp');
+let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+const ext=(x,y,w,h)=>{minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x+w);maxY=Math.max(maxY,y+h)};
+D.boards.forEach((b,i)=>{const f=document.createElement('div');f.className='frame';Object.assign(f.style,{left:b.x+'px',top:b.y+'px',width:b.w+'px',height:b.h+'px'});
+ f.innerHTML='<div class="lbl"></div><img loading="lazy" draggable="false">';f.querySelector('.lbl').textContent=String(i+1).padStart(2,'0')+' '+b.t;const im=f.querySelector('img');im.src=b.src;im.alt=b.t;im.dataset.i=i;W.appendChild(f);ext(b.x,b.y-30,b.w,b.h+30)});
+D.notes.forEach(n=>{const e=document.createElement('div');e.textContent=n.text;e.style.left=n.x+'px';e.style.top=n.y+'px';
+ if(n.kind==='title1'){e.className='ntitle';e.style.width=(n.maxW||1800)+'px';ext(n.x,n.y,n.maxW||1800,200)}else{e.className='sticky';e.style.width=(n.w||300)+'px';ext(n.x,n.y,n.w||300,260)}W.appendChild(e)});
+let s=1,tx=0,ty=0;const apply=()=>{W.style.transform=`translate(${tx}px,${ty}px) scale(${s})`;document.getElementById('zl').textContent=Math.round(s*100)+'%'};
+const clamp=v=>Math.min(4,Math.max(.05,v));
+function zoomAt(f,cx,cy){const ns=clamp(s*f);tx=cx-(cx-tx)*ns/s;ty=cy-(cy-ty)*ns/s;s=ns;apply()}
+function fit(){const p=48,w=maxX-minX,h=maxY-minY;s=clamp(Math.min((innerWidth-2*p)/w,(innerHeight-2*p-40)/h));tx=p-minX*s+((innerWidth-2*p)-w*s)/2;ty=p+40-minY*s;apply()}
+V.addEventListener('wheel',e=>{e.preventDefault();if(e.shiftKey){tx-=e.deltaY;apply();return}zoomAt(Math.exp(-e.deltaY*(e.ctrlKey?.01:.0015)),e.clientX,e.clientY)},{passive:false});
+const pts=new Map();let moved=0,last=null,pd=0;
+V.addEventListener('pointerdown',e=>{V.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;V.classList.add('drag');if(pts.size===2){const[a,b]=[...pts.values()];pd=Math.hypot(a.x-b.x,a.y-b.y)}});
+V.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const o=pts.get(e.pointerId);const n={x:e.clientX,y:e.clientY};pts.set(e.pointerId,n);
+ if(pts.size===1){tx+=n.x-o.x;ty+=n.y-o.y;moved+=Math.abs(n.x-o.x)+Math.abs(n.y-o.y);apply()}
+ else if(pts.size===2){const[a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pd)zoomAt(d/pd,(a.x+b.x)/2,(a.y+b.y)/2);pd=d;moved+=10}});
+const up=e=>{const wasClick=pts.size===1&&moved<5;pts.delete(e.pointerId);if(!pts.size)V.classList.remove('drag');pd=0;
+ if(wasClick){const t=document.elementFromPoint(e.clientX,e.clientY);if(t&&t.dataset&&t.dataset.i!=null)openLb(+t.dataset.i)}};
+V.addEventListener('pointerup',up);V.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);V.classList.remove('drag')});
+document.getElementById('zi').onclick=()=>zoomAt(1.25,innerWidth/2,innerHeight/2);
+document.getElementById('zo').onclick=()=>zoomAt(.8,innerWidth/2,innerHeight/2);
+document.getElementById('fit').onclick=fit;
+const lb=document.getElementById('lb');let cur=0;
+function openLb(i){cur=(i+D.boards.length)%D.boards.length;const b=D.boards[cur];document.getElementById('lbi').src=b.src;document.getElementById('lbi').alt=b.t;document.getElementById('cap').textContent=String(cur+1).padStart(2,'0')+' '+b.t+'  ('+(cur+1)+'/'+D.boards.length+')';lb.classList.add('on')}
+document.getElementById('prev').onclick=()=>openLb(cur-1);document.getElementById('next').onclick=()=>openLb(cur+1);
+document.getElementById('cls').onclick=()=>lb.classList.remove('on');
+lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('on')});
+addEventListener('keydown',e=>{if(!lb.classList.contains('on'))return;if(e.key==='Escape')lb.classList.remove('on');if(e.key==='ArrowLeft')openLb(cur-1);if(e.key==='ArrowRight')openLb(cur+1)});
+addEventListener('resize',fit);fit();
+</script></body></html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>确认弹窗（一）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;position:relative;overflow:hidden;background:#f6f7f9;color:#14161b;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif">
+<div style="position:absolute;inset:0;background:rgba(14,16,22,.42)"></div><div style="position:relative;padding:22px 20px;display:flex;flex-direction:column;gap:12px;color:#14161b"><div><div style="font-size:12px;color:#fff;margin-bottom:6px">文件操作 › 重命名（文件夹为「重命名文件夹」）</div><div style="background:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 10px 28px rgba(16,24,40,.10)"><div style="font-size:16px;font-weight:600">重命名文件</div><div style="height:46px;border:1px solid #e3e3e6;background:#f6f6f7;border-radius:12px;margin:10px 0 14px;display:flex;align-items:center;padding:0 14px;font-size:16px">旅行vlog.mp4</div><div style="display:flex;gap:8px"><button style="flex:1;height:40px;border:0;border-radius:12px;background:#eef1f5;font-weight:600">取消</button><button style="flex:1;height:40px;border:0;border-radius:12px;background:{{accent}};color:#fff;font-weight:600">重命名</button></div></div></div><div><div style="font-size:12px;color:#fff;margin-bottom:6px">文件操作 › 删除（文件）</div><div style="background:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 10px 28px rgba(16,24,40,.10)"><div style="font-size:16px;font-weight:600">删除文件</div><p style="margin:6px 0 14px;font-size:13px;color:#6a7180;line-height:1.55">从个人文件中移除，已生成的分享链接将失效，且不进回收站、不可恢复。</p><div style="display:flex;gap:8px"><button style="flex:1;height:40px;border:0;border-radius:12px;background:#eef1f5;font-weight:600">取消</button><button style="flex:1;height:40px;border:0;border-radius:12px;background:#c42e24;color:#fff;font-weight:600">删除</button></div></div></div><div><div style="font-size:12px;color:#fff;margin-bottom:6px">文件操作 › 删除（文件夹）</div><div style="background:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 10px 28px rgba(16,24,40,.10)"><div style="font-size:16px;font-weight:600">删除文件夹</div><p style="margin:6px 0 14px;font-size:13px;color:#6a7180;line-height:1.55">将删除文件夹及其中 3 个文件，不进回收站、不可恢复。</p><div style="display:flex;gap:8px"><button style="flex:1;height:40px;border:0;border-radius:12px;background:#eef1f5;font-weight:600">取消</button><button style="flex:1;height:40px;border:0;border-radius:12px;background:#c42e24;color:#fff;font-weight:600">删除</button></div></div></div><div><div style="font-size:12px;color:#fff;margin-bottom:6px">添加到文件 / 添加到空间 / 选择目标文件夹 › 新建文件夹</div><div style="background:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 10px 28px rgba(16,24,40,.10)"><div style="font-size:16px;font-weight:600">新建文件夹</div><div style="height:46px;border:1px solid #e3e3e6;background:#f6f6f7;border-radius:12px;margin:10px 0 14px;display:flex;align-items:center;padding:0 14px;font-size:16px">新建文件夹</div><div style="display:flex;gap:8px"><button style="flex:1;height:40px;border:0;border-radius:12px;background:#eef1f5;font-weight:600">取消</button><button style="flex:1;height:40px;border:0;border-radius:12px;background:{{accent}};color:#fff;font-weight:600">创建</button></div></div></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#3A6DF2","options":["#3A6DF2","#306EFF","#2350D1"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#3A6DF2' };
+  }
+}
+</script>
+</body>
+</html>
