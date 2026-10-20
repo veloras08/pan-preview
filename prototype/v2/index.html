@@ -141,6 +141,17 @@ select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line
 .pnew,.pgo{flex:1;border:0;border-radius:999px;padding:16px;font-size:17px;font-weight:600;cursor:pointer}
 .pnew{background:#d9d9db;color:#111}.pgo{background:#4169f0;color:#fff}.pgo:disabled{background:#b9c6f5;cursor:not-allowed}
 .empty{text-align:center;color:var(--muted);padding:32px 12px}
+.topbar.sqbar{border-bottom:1px solid var(--line);padding-bottom:12px}
+.sqin{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:17px;padding:8px 4px;color:var(--ink)}
+.sqin::-webkit-search-cancel-button{display:none}
+.sqempty{text-align:center;color:var(--ink);font-size:15px;padding:90px 12px 0}
+.sqempty svg{display:block;margin:0 auto 22px}
+.sqhead{display:flex;align-items:center;justify-content:space-between;font-size:15px;color:var(--ink);margin:6px 0 4px}
+.sqhead .iconbtn{color:var(--muted)}
+.sqrow{display:flex;align-items:center;gap:16px;padding:12px 0;cursor:pointer}
+.sqrow .sqkw{flex:1;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sqrow>.iconbtn{color:var(--muted)}
+.frow mark{background:none;color:var(--accent);font-weight:600}
 .fail{margin-top:20px;text-align:center}
 .fail .name{font-size:16px;white-space:normal}
 .ph{font-size:11px;color:var(--muted);margin-top:10px}
@@ -281,6 +292,9 @@ function initial(){
     showView:true,        // 首页「最近查看」是否展开
     focusSearch:false,
     searchOn:false,
+    sq:'',                 // 搜索页关键词
+    shist:['教程', '封面', 'mp4', '素材'],   // 搜索历史（最近在前，最多 20 条）
+    focusSq:false,
     sortBy:'dateNew',
     fileView:'grid',
     spaceSort:'dateNew',
@@ -396,6 +410,9 @@ const IC = {
   cloud:'<path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4.8 4.8 0 0 1 0 9.5z"/>',
   noad:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  hist:'<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/><path d="M12 7.5V12l3 2"/>',
+  fillUp:'<path d="M18 18L6.5 6.5M6.5 15V6.5H15"/>',
+  close:'<path d="M6 6l12 12M18 6L6 18"/>',
   saveNew:'<path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4.8 4.8 0 0 1 0 9.5z"/><path d="M12 10v6M9.5 13.5L12 16l2.5-2.5"/>',
   transfer:'<path d="M8 20V5M4 9l4-4 4 4"/><path d="M16 4v15M12 15l4 4 4-4"/>'
 };
@@ -473,15 +490,25 @@ A.trRemove = id => { S.transfers = S.transfers.filter(t => t.id !== id); toast('
 A.trCancel = id => { S.transfers = S.transfers.filter(t => t.id !== id); toast('已取消任务（演示）'); };
 A.retryTransfer = id => { const x = S.transfers.find(t => t.id === id); if (x){ x.status = 'run'; x.pct = 0; } toast('已重新开始（演示）'); };
 A.toggle = k => { S[k] = !S[k]; };
-A.goSearch = () => { S.tab = 'files'; S.stack = []; S.searchOn = true; S.focusSearch = true; };
-A.closeSearch = () => { S.searchOn = false; S.fileQuery = ''; };
+// 搜索（首页、文件页、文件夹页共用同一个搜索页；范围只限云存储文件，不含空间文件）
+A.goSearch = () => { S.sq = ''; S.stack.push({v:'search'}); S.focusSq = true; };
+A.sqRecord = kw => { kw = (kw || '').trim(); if (!kw) return; S.shist = [kw].concat(S.shist.filter(x => x !== kw)).slice(0, 20); };
+A.sqSubmit = () => { A.sqRecord(S.sq); };
+A.sqRun = i => { S.sq = S.shist[i]; A.sqRecord(S.sq); };
+A.sqFill = i => { S.sq = S.shist[i]; S.focusSq = true; };
+A.sqClear = () => { S.sq = ''; S.focusSq = true; };
+A.sqClearHist = () => { S.dialog = {title:'清空全部搜索历史？', body:'清空后无法恢复，将移除全部搜索历史。', ok:'确认', name:'doSqClearHist', args:[]}; };
+A.doSqClearHist = () => { S.shist = []; };
+A.sqOpen = (k, id) => { A.sqRecord(S.sq); if (k === 'file') A.preview(null, id, 'own'); else if (k === 'sys') A.openFolder(id); else if (k === 'group') A.openFolder('space', id); else A.openFolder('dir', id); };
+A.sqMenu = (k, id) => { A.sqRecord(S.sq); S.sheet = {type:'folderMenu', k, id, fs:true}; };
+A.openLoc = (k, id) => { const L = itemLoc({k, id}); if (!L || L === 'root'){ S.tab = 'files'; S.stack = []; return; } if (L === 'up' || L === 'saved') A.openFolder(L); else if (L.startsWith('g:')) A.openFolder('space', L.slice(2)); else A.openFolder('dir', L); };
 A.sortSheet = () => { S.sheet = {type:'sort'}; };
 A.logSortSheet = () => { S.sheet = {type:'logsort'}; };
 A.setLogSort = k => { S.logSort = k; };
 A.setSort = k => { S.sortBy = k; };
 A.filesMenu = () => { S.sheet = {type:'filesMenu'}; };
 A.openFolder = (kind, id) => { S.fileQuery = ''; S.stack.push({v:'folder', kind, id}); };
-A.openFromHome = id => { const s = getSpace(id); s.unread = 0; S.detailSeg = 'recent'; S.stack.push({v:'space', id}); };
+A.openFromHome = id => A.openSpace(id);
 
 A.follow = id => { getSpace(id).followed = true; toast('已关注，有更新时会提醒你'); };
 A.unfollow = id => { getSpace(id).followed = false; toast('已取消关注'); };
@@ -628,6 +655,12 @@ function onSearch(v){
   S.fileQuery = v;
   const el = $('flist');
   if (el) el.innerHTML = fileList(curTop());
+}
+
+function onSq(v){
+  S.sq = v;
+  const b = $('sbody'); if (b) b.innerHTML = sqBody();
+  const x = $('sqx'); if (x) x.innerHTML = sqX();
 }
 
 /* ---------- views ---------- */
@@ -912,14 +945,44 @@ function fileList(t){
 }
 function filesBody(t){
   const cur = SORTS.find(x => x[0] === S.sortBy)[1];
-  return `${S.searchOn ? `<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input id="q" class="search" style="margin:0" type="search" placeholder="搜索文件和文件夹名称" value="${esc(S.fileQuery)}" oninput="onSearch(this.value)" aria-label="搜索文件"><button class="btn small" onclick="act('closeSearch')">取消</button></div>` : ''}
-    <div class="sortbar"><button onclick="act('sortSheet')">${esc(cur)} ⌄</button>
+  return `<div class="sortbar"><button onclick="act('sortSheet')">${esc(cur)} ⌄</button>
       <button class="iconbtn sm" aria-label="切换视图" onclick="act('set','fileView','${S.fileView === 'grid' ? 'list' : 'grid'}')">${svg(S.fileView === 'grid' ? 'list' : 'grid', 22)}</button></div>
     <div id="flist">${fileList(t)}</div>
     ${t ? '' : `<div class="sub" style="margin:14px 0 0;text-align:center">已用 ${fmtSize(used())} / ${fmtSize(quotaTotal())}</div>`}`;
 }
 function vFiles(){ return filesBody(null); }
 function vFolder(t){ return filesBody(t); }
+
+/* ---- 搜索页：空状态 / 搜索历史 / 结果 ---- */
+function sqX(){ return S.sq ? `<button class="iconbtn" aria-label="清除关键词" onclick="act('sqClear')">${svg('close', 22)}</button>` : ''; }
+function hl(name, q){
+  const i = name.toLowerCase().indexOf(q.toLowerCase());
+  return i < 0 ? esc(name) : esc(name.slice(0, i)) + `<mark>${esc(name.slice(i, i + q.length))}</mark>` + esc(name.slice(i + q.length));
+}
+// 搜索范围：个人文件里的全部文件和文件夹（含「我保存的」副本），不含空间
+function sqResults(q){
+  q = q.toLowerCase();
+  const out = [];
+  ['up', 'saved'].filter(k => !S.sysGone[k]).forEach(k => { const u = under(k); out.push({k:'sys', id:k, name:locName(k), at:lastAt(u)}); });
+  S.folders.forEach(d => { const u = under(d.id); out.push({k:'dir', id:d.id, name:d.name, at:lastAt(u) || d.at}); });
+  [...new Set(S.mine.filter(f => f.from && !f.dir).map(f => f.from))].forEach(g => { const u = under('g:' + g); out.push({k:'group', id:g, name:gName(g), at:lastAt(u)}); });
+  const dirs = out.filter(e => e.name.toLowerCase().includes(q)).sort((a, b) => dkey(b.at) - dkey(a.at));
+  const files = S.mine.filter(f => f.name.toLowerCase().includes(q)).map(f => ({k:'file', id:f.id, f, name:f.name, at:fAt(f), size:f.size})).sort((a, b) => dkey(b.at) - dkey(a.at));
+  return dirs.concat(files);
+}
+function sqBody(){
+  const q = S.sq.trim();
+  if (!q){
+    if (!S.shist.length) return `<div class="sqempty"><svg viewBox="0 0 200 90" width="200" aria-hidden="true"><rect x="0" y="22" width="44" height="44" rx="8" fill="#eef1f5"/><rect x="156" y="22" width="44" height="44" rx="8" fill="#eef1f5"/><rect x="52" y="12" width="96" height="64" rx="10" fill="#e4ebff"/><rect x="66" y="26" width="58" height="6" rx="3" fill="#c5d3ff"/><rect x="66" y="38" width="40" height="6" rx="3" fill="#c5d3ff"/><circle cx="122" cy="56" r="15" fill="#fff" stroke="#2350d1" stroke-width="5"/><path d="M133 67l10 10" stroke="#2350d1" stroke-width="7" stroke-linecap="round"/></svg><div>搜索云盘中的文件</div></div>`;
+    return `<div class="sqhead"><span>搜索历史</span><button class="iconbtn sm" aria-label="清空搜索历史" onclick="act('sqClearHist')">${svg('brush', 22)}</button></div>`
+      + S.shist.map((kw, i) => `<div class="sqrow" role="button" tabindex="0" onclick="act('sqRun',${i})">${svg('hist', 24)}<span class="sqkw">${esc(kw)}</span><button class="iconbtn sm" aria-label="填入搜索框" onclick="event.stopPropagation();act('sqFill',${i})">${svg('fillUp', 22)}</button></div>`).join('');
+  }
+  const list = sqResults(q);
+  if (!list.length) return `<div class="empty">没有找到相关文件</div>`;
+  return list.map(e => `<div class="frow" role="button" tabindex="0" onclick="act('sqOpen','${e.k}','${e.id}')">${e.k === 'file' ? thumb(e.f.kind) : folderSvg()}
+    <div class="meta"><div class="fn">${hl(e.name, q)}</div><div class="fs">${fdate(e.at)}${e.k === 'file' ? ' · ' + fmtSize(e.size) : ''}</div></div>
+    <button class="iconbtn sm" aria-label="更多操作" onclick="event.stopPropagation();act('sqMenu','${e.k}','${e.id}')">⋮</button></div>`).join('');
+}
 
 function vSpaces(){
   let list = S.spaces.filter(s => {
@@ -1184,7 +1247,7 @@ function vMine(){
 
 /* ---------- overlays ---------- */
 function sheetHtml(sh){
-  if (sh.type === 'folderMenu') return itemMenu(sh.k, sh.id);
+  if (sh.type === 'folderMenu') return itemMenu(sh.k, sh.id, sh.fs);
   if (sh.type === 'spaceMenu'){
     const s = getSpace(sh.id);
     if (!s) return '';
@@ -1268,13 +1331,15 @@ const MI = {
   move:'<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4H6.5A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/>',
   trash:'<path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/>',
-  space:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5L12 12l8-4.5M12 12v9"/>'
+  space:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5L12 12l8-4.5M12 12v9"/>',
+  folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'
 };
-function itemMenu(k, id){
+function itemMenu(k, id, fs){
   const mi = (ic, label, a, danger) => `<button class="mi${danger ? ' danger' : ''}" onclick="${a}"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${MI[ic]}</svg>${label}</button>`;
   if (itemName(k, id) === undefined) return '';
   const key = `'${k}','${id}'`;
   return `<div class="grab"></div><div class="mname">${esc(itemName(k, id))}</div>`
+    + (fs ? mi('folder', '打开所在文件夹', `act('openLoc',${key})`) : '')
     + mi('share', '分享', "act('shareFile')")
     + (k === 'group' ? mi('space', '查看来源空间', `act('openSpace','${id}')`) : '')
     + '<hr class="mhr">'
@@ -1337,6 +1402,7 @@ function panel(){
         <li>打开「模板合集」，它已停止分享，关注者看到失效页，无法浏览。</li>
         <li>在「我的」→「我的分享」里停止或重新分享「我的课程资料」。</li>
         <li>在「文件」里删除一个文件，观察确认文案和「不进回收站」的说明。</li>
+        <li>在「首页」或「文件」点右上角搜索：未输入时显示搜索历史（点 ↖ 填入、点扫帚清空）；输入「封面」或「mp4」看结果，只搜云盘文件，不出现空间里的文件。</li>
         <li>在「我的课程资料」里点右下角「+」，选择照片、视频、文件或新建文件夹（和「文件」页一致）；上传无需审核，关注者立即可见，并出现在「更新」里。</li>
       </ol>
       <div class="note">占位内容：举报、删除空间的后果文案、失效页文案、设置子页，均为待设计项，原型中只做提示。会员相关（开通、试看、扩容）待产品功能稳定后再加回。</div>
@@ -1374,9 +1440,12 @@ function render(){
     body = p.body; bottom = p.bottom;
   } else if (t.v === 'folder'){
     title = locName(locOf(t));
-    right = (t.kind === 'up' || t.kind === 'dir') ? `<div class="pill"><button class="iconbtn" aria-label="搜索" onclick="act('set','searchOn',true)">${svg('search', 22)}</button></div>` : '';
+    right = `<div class="pill"><button class="iconbtn" aria-label="搜索" onclick="act('goSearch')">${svg('search', 22)}</button></div>`;
     if (t.kind !== 'space') bottom = `<button class="fab" aria-label="上传" onclick="act('addSheet')">+</button>`;
     body = vFolder(t);
+  } else if (t.v === 'search'){
+    right = `<span id="sqx">${sqX()}</span>`;
+    body = `<div id="sbody">${sqBody()}</div>`;
   } else if (t.v === 'saved'){
     title = '最近保存';
     right = `<button class="iconbtn" aria-label="清空记录" onclick="act('clearSaved')">${svg('brush', 22)}</button>`;
@@ -1397,7 +1466,7 @@ function render(){
   const content = document.querySelector('.content');
   const y = content ? content.scrollTop : 0;
   $('phone').innerHTML = `<div class="screen${!t && (S.tab === 'home' || S.tab === 'files' || S.tab === 'spaces' || S.tab === 'mine') ? ' home' : ''}${t && t.v === 'space' && !(t.dir && !t.log) && (getSpace(t.id).shared || getSpace(t.id).owner === 'me') ? ' spv' : ''}">
-      <header class="topbar">${back}<div class="title">${esc(title)}</div>${right}</header>
+      <header class="topbar${t && t.v === 'search' ? ' sqbar' : ''}">${back}${t && t.v === 'search' ? `<input id="sq" class="sqin" type="search" enterkeyhint="search" placeholder="搜索云盘文件" aria-label="搜索云盘文件" value="${esc(S.sq)}" oninput="onSq(this.value)" onkeydown="if(event.key==='Enter'){this.blur();act('sqSubmit')}">` : `<div class="title">${esc(title)}</div>`}${right}</header>
       <main class="content">${body}</main>
       ${bottom}${tabs}${overlays()}
       ${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}
@@ -1409,6 +1478,7 @@ function render(){
   if (S.focusSp){ S.focusSp = false; const q2 = $('spq'); if (q2) q2.focus(); }
   if (S.dialog && S.dialog.input != null){ const di = $('dlgIn'); if (di){ di.focus(); di.select(); } }
   if (S.focusSearch){ S.focusSearch = false; const q = $('q'); if (q) q.focus(); }
+  if (S.focusSq){ S.focusSq = false; const q3 = $('sq'); if (q3){ q3.focus(); q3.setSelectionRange(q3.value.length, q3.value.length); } }
 }
 render();
 </script>
