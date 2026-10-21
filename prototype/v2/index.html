@@ -307,6 +307,9 @@ select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line
 .mvhud{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:8px;background:rgba(40,40,44,.9);border-radius:999px;padding:6px 12px;pointer-events:none}
 .mvhud i{display:block;width:90px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}.mvhud i b{display:block;height:100%;background:#fff}
 .mvzoom{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);z-index:3;background:rgba(40,40,44,.85);border-radius:999px;padding:4px 12px;font-size:12px;pointer-events:none}
+.sheet.frost{background:rgba(244,244,246,.82);backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);border-radius:28px 28px 0 0;padding-top:14px}
+.scrim:has(.sheet.frost){background:rgba(0,0,0,.08)}
+.sheet.frost .mhr{border-top-color:rgba(0,0,0,.1)}
 /* Viewer's own dark sheets: settings, speed, more, details */
 .mvscrim{position:absolute;inset:0;z-index:6;background:rgba(0,0,0,.35);display:flex;align-items:flex-end}
 .mvsheet{width:100%;background:#232327;border-radius:16px 16px 0 0;padding:10px 0 22px;color:#e9eaee}
@@ -1369,6 +1372,7 @@ function vMine(){
 
 /* ---------- overlays ---------- */
 function sheetHtml(sh){
+  if (sh.type === 'mvMenu') return mvMenuHtml();
   if (sh.type === 'folderMenu') return itemMenu(sh.k, sh.id, sh.fs);
   if (sh.type === 'shareCreate'){
     const d = S.shareDraft, f = d.k === 'file' ? S.mine.find(x => x.id === d.id) : null;
@@ -1528,7 +1532,7 @@ function composeHtml(){
 function overlays(){
   let o = pickerHtml() + csHtml() + composeHtml();
   if (S.sheet){
-    o += `<div class="scrim" onclick="act('closeSheet')"><div class="sheet" onclick="event.stopPropagation()">${sheetHtml(S.sheet)}</div></div>`;
+    o += `<div class="scrim" onclick="act('closeSheet')"><div class="sheet${S.sheet.type === 'mvMenu' ? ' frost' : ''}" onclick="event.stopPropagation()">${sheetHtml(S.sheet)}</div></div>`;
   }
   if (S.dialog){
     const d = S.dialog;
@@ -1619,11 +1623,6 @@ const MVI = {
   sunL:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
   mute:'<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M16 10l4 4M20 10l-4 4"/>',
   vol:'<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
-  download:'<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>',
-  share:'<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M6 12v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6"/>',
-  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
-  saveNew:'<path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4.8 4.8 0 0 1 0 9.5z"/><path d="M12 10v6M9.5 13.5L12 16l2.5-2.5"/>',
-  dots:'<circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/>',
   replay:'<path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/>',
   next:'<path d="M6 5l9 7-9 7z"/><path d="M18 5v14"/>'
 };
@@ -1661,7 +1660,7 @@ function mvEnter(t, first){
   const f = mvCur(t);
   t.z = 1; t.x = 0; t.y = 0; t.ended = false;
   if (!f) return;
-  if (!first) mvMarkViewed(f);
+  if (!first){ mvMarkViewed(f); MV.toast = null; }
   if (!MV.loaded.has(f.id)) setTimeout(() => { MV.loaded.add(f.id); const el = document.querySelector(`.mvs[data-id="${f.id}"] .mvimg`); if (el) el.classList.remove('ld'); const sp = document.querySelector(`.mvs[data-id="${f.id}"] .mvspin`); if (sp) sp.remove(); }, 450);
   if (f.kind === 'video'){
     const start = t.time[f.id] != null ? t.time[f.id] : (f.prog && f.prog < .98 ? Math.round(f.prog * f.dur) : 0);
@@ -1705,7 +1704,7 @@ function mvPage(t, f, k){
   const g = mvG(), lit = `filter:brightness(${(.5 + g.bright).toFixed(2)})`;
   const tf = cur && f.kind === 'image' ? `transform:translate(${t.x}px,${t.y}px) scale(${t.z});` : '';
   const img = `<img class="mvimg${ld}" src="${art(f)}" alt="" draggable="false" style="${tf}${f.kind === 'video' ? lit : ''}">${ld ? '<span class="mvspin"></span>' : ''}`;
-  const more = `<button class="iconbtn" aria-label="更多" onclick="mvDo('mvSheet','more')">${mvi('more', 22)}</button>`;
+  const more = `<button class="iconbtn" aria-label="更多" onclick="act('mvMenu')">${mvi('more', 22)}</button>`;
   const head = `<header class="mvhead"><button class="iconbtn" aria-label="返回" onclick="act('back')">‹</button><div class="n">${esc(f.name)}</div>${more}</header>`;
   if (f.kind === 'image'){
     return `<section class="mvs img" data-id="${f.id}" aria-label="${esc(f.name)}">${head}<div class="mvbody">${img}</div><footer class="mvfoot"></footer></section>`;
@@ -1739,28 +1738,6 @@ function mvSheetHtml(t){
       + `<div class="mvslide">${mvi('mute', 18)}<input type="range" min="0" max="1" step=".01" value="${g.vol}" aria-label="音量" oninput="mvVol(this.value)">${mvi('vol', 20)}</div>`;
   } else if (t.sheet === 'rate'){
     h += `<div class="hd">倍速播放</div>` + RATES.map(r => row('', rateLabel(r), `mvDo('mvRate',${r})`, t.rate === r ? '<span class="ck">✓</span>' : '')).join('');
-  } else if (t.sheet === 'more'){
-    h += `<div class="hd" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(f.name)}</div>`;
-    if (t.mode === 'own'){
-      h += row('download', '下载', "act('downloadOwn')") + row('share', '分享', `act('shareStart','file','${f.id}')`)
-        + row('info', '详情', "mvDo('mvSheet','info')") + row('dots', '重命名、移动、删除…', `act('fileMenu','${f.id}')`);
-    } else if (t.mode === 'owner'){
-      h += row('download', '下载', "act('downloadOwn')") + row('info', '详情', "mvDo('mvSheet','info')") + row('dots', '重命名、从空间移除…', `act('spFileMenu','${sp.id}','${f.id}')`);
-    } else {
-      const saved = S.mine.some(m => m.from === sp.id && m.srcId === f.id);
-      h += row('saveNew', saved ? '已在「文件」中' : '保存到我的文件', saved ? "mvDo('mvSheet',null)" : `mvDo('mvSave')`) + row('info', '详情', "mvDo('mvSheet','info')");
-    }
-  } else if (t.sheet === 'info'){
-    const [w, hh] = mediaDims(f);
-    const loc = t.mode === 'own' ? (f.from ? '来自 ' + (getSpace(f.from) || {name:''}).name : locName(fileLoc(f))) : sp.name + (f.folder ? ' / ' + f.folder : '');
-    const when = t.mode === 'own' ? fdate(fAt(f)) : fTime(f);
-    h += `<div class="hd" style="white-space:normal">${esc(f.name)}</div>`
-      + `<div class="mvkv" style="border-top:0"><span>类型</span><span>${KIND[f.kind].label} · ${esc(f.name.split('.').pop().toUpperCase())}</span></div>`
-      + `<div class="mvkv"><span>${f.kind === 'video' ? '分辨率' : '尺寸'}</span><span>${w} × ${hh}</span></div>`
-      + (f.kind === 'video' ? `<div class="mvkv"><span>时长</span><span>${hms(f.dur)}</span></div>` : '')
-      + `<div class="mvkv"><span>大小</span><span>${fmtSize(f.size)}</span></div>`
-      + `<div class="mvkv"><span>位置</span><span>${esc(loc)}</span></div>`
-      + (when ? `<div class="mvkv"><span>${t.mode === 'own' ? '添加时间' : '上传时间'}</span><span>${esc(when)}</span></div>` : '');
   }
   return `<div class="mvscrim" onclick="if(event.target===this)mvDo('mvSheet',null)"><div class="mvsheet" role="dialog">${h}</div></div>`;
 }
@@ -1787,6 +1764,37 @@ MA.mvRestart = () => { const t = curTop(), f = mvCur(t); t.time[f.id] = 0; MV.to
 MA.mvSheet = k => { curTop().sheet = k; };
 MA.mvRate = r => { const t = curTop(); t.rate = r; t.sheet = null; mvToast(`已切换到 ${rateLabel(r)} 速度播放`); };
 MA.mvSave = () => { const t = curTop(); t.sheet = null; A.saveFile(t.s, mvCur(t).id); };
+A.mvMenu = () => { S.sheet = {type:'mvMenu'}; };
+A.mvOpenLoc = id => { const t = curTop(); if (t && t.v === 'media'){ mvLeave(t); S.stack.pop(); } A.openLoc('file', id); };
+A.mvOpenSpace = () => { const t = curTop(); mvLeave(t); S.stack.pop(); };
+// 浏览器右上角「⋮」：浅色毛玻璃抽屉，无标题；分享 | 下载、重命名、移动、复制、在文件夹中打开 | 删除
+function mvMenuHtml(){
+  const t = curTop(); if (!t || t.v !== 'media') return '';
+  const f = mvCur(t); if (!f) return '';
+  const mi = (ic, label, a) => `<button class="mi" onclick="${a}"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${MI[ic]}</svg>${label}</button>`;
+  const key = `'file','${f.id}'`;
+  if (t.mode === 'own') return `<div class="grab"></div>`
+    + mi('share', '分享', `act('shareStart',${key})`)
+    + '<hr class="mhr">'
+    + mi('download', '下载', "act('downloadOwn')")
+    + mi('rename', '重命名', `act('renameStart',${key})`)
+    + mi('move', '移动', `act('pickStart','move',${key})`)
+    + mi('copy', '复制', `act('pickStart','copy',${key})`)
+    + mi('folder', '在文件夹中打开', `act('mvOpenLoc','${f.id}')`)
+    + '<hr class="mhr">'
+    + mi('trash', '删除', `act('deleteItem',${key})`);
+  const sp = getSpace(t.s);
+  if (t.mode === 'owner') return `<div class="grab"></div>`
+    + mi('download', '下载', "act('downloadOwn')")
+    + mi('rename', '重命名', "act('toastMsg','重命名（演示）')")
+    + mi('folder', '在空间中打开', "act('mvOpenSpace')")
+    + '<hr class="mhr">'
+    + mi('trash', '从空间移除', "act('toastMsg','从空间移除（演示）')");
+  const saved = S.mine.some(m => m.from === sp.id && m.srcId === f.id);
+  return `<div class="grab"></div>`
+    + mi('download', saved ? '已在「文件」中' : '保存到我的文件', saved ? "act('toastMsg','这个文件已在「文件」中')" : `act('saveFile','${sp.id}','${f.id}')`)
+    + mi('folder', '在空间中打开', "act('mvOpenSpace')");
+}
 function mvDo(name, ...args){ MA[name](...args); render(); }
 function mvBright(v){ mvG().bright = +v; document.querySelectorAll('.mvs.vid .mvimg').forEach(el => { el.style.filter = `brightness(${(.5 + +v).toFixed(2)})`; }); }
 function mvVol(v){
