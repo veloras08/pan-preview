@@ -263,6 +263,72 @@ select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line
 .sbox{width:52px;height:43px;border-radius:12px;flex:0 0 52px}
 .screen.home .card{border:1px solid #ececef;box-shadow:none}
 
+/* Media viewer: black full-screen pages, swipe up / down between files (reference video) */
+.mcov{position:relative;display:block;width:100%;height:100%;background-size:cover;background-position:center}
+.mcov .mplay{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(0,0,0,.38);backdrop-filter:blur(4px);display:grid;place-items:center;color:#fff}
+.mcov .dur{position:absolute;right:8px;bottom:6px;font-size:12px;color:#fff;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.mcov .pg{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.3)}.mcov .pg i{display:block;height:100%;background:#2f9e6f}
+.gcard.media{background:#e9ebef}
+.vbig.media{background-size:cover;background-position:center}
+.mv{position:absolute;inset:0;z-index:12;background:#000;color:#fff;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.mvtrack{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform}
+.mvtrack.anim{transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.mvs{position:relative;flex:0 0 100%;height:100%;display:flex;flex-direction:column;background:#000}
+.mvhead{flex:none;display:flex;align-items:center;gap:4px;padding:44px 8px 8px;position:relative;z-index:2}
+.mvhead .iconbtn{color:#fff;font-size:26px}.mvhead .iconbtn:hover{background:rgba(255,255,255,.12)}
+.mvhead .n{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mvs.img .mvhead .n{text-align:center}
+.mvbody{position:relative;flex:1;min-height:0;display:grid;place-items:center;overflow:hidden}
+.mvimg{max-width:100%;max-height:100%;display:block;transform-origin:center;pointer-events:none;transition:filter .35s}
+.mvimg.anim{transition:transform .22s ease,filter .35s}
+.mvimg.ld{filter:blur(14px) saturate(.8)}
+.mvs.vid .mvimg{width:100%;height:100%;object-fit:contain}
+.mvs.vid.playing .mvimg{animation:kb 14s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.06) translate(-1%,-1%)}}
+.mvspin{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mvpp{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:0;background:rgba(0,0,0,.42);backdrop-filter:blur(6px);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:1}
+.mvsub{position:absolute;left:16px;right:16px;bottom:18px;text-align:center;font-size:15px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.8);pointer-events:none}
+.mvend{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:1}
+.mvend button{border:0;border-radius:999px;padding:10px 20px;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;max-width:270px}
+.mvend .re{background:rgba(255,255,255,.18);color:#fff}
+.mvend .nx{background:#fff;color:#111}.mvend .nx span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mvfoot{flex:none;height:64px;display:flex;align-items:center;gap:10px;padding:0 12px 10px 14px;font-size:11px;color:#c9ccd2;font-variant-numeric:tabular-nums}
+.mvs.img .mvfoot{visibility:hidden}
+.mvfoot .set{border:0;background:none;color:#fff;cursor:pointer;display:grid;place-items:center;padding:4px;border-radius:8px}
+.mvbar{position:relative;flex:1;height:24px;cursor:pointer;touch-action:none}
+.mvbar::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;border-radius:1px;background:rgba(255,255,255,.22)}
+.mvbar i{position:absolute;left:0;top:50%;height:2px;margin-top:-1px;border-radius:1px;background:rgba(255,255,255,.85)}
+.mvbar b{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:transform .12s}
+.mvbar.drag b{transform:scale(1.4)}
+.mvbar .tip{position:absolute;bottom:24px;transform:translateX(-50%);background:rgba(40,40,44,.92);border-radius:6px;padding:3px 7px;font-size:12px;color:#fff;white-space:nowrap;display:none}
+.mvbar.drag .tip{display:block}
+.mvtoast{position:absolute;left:14px;bottom:76px;z-index:4;background:rgba(40,40,44,.9);border-radius:8px;padding:7px 12px;font-size:13px;color:#fff;pointer-events:auto;display:flex;gap:10px;align-items:center;max-width:calc(100% - 28px)}
+.mvtoast button{border:0;background:none;color:#8fb3ff;font-size:13px;cursor:pointer;padding:0}
+.mvhud{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:8px;background:rgba(40,40,44,.9);border-radius:999px;padding:6px 12px;pointer-events:none}
+.mvhud i{display:block;width:90px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}.mvhud i b{display:block;height:100%;background:#fff}
+.mvzoom{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);z-index:3;background:rgba(40,40,44,.85);border-radius:999px;padding:4px 12px;font-size:12px;pointer-events:none}
+/* Viewer's own dark sheets: settings, speed, gestures, more, details */
+.mvscrim{position:absolute;inset:0;z-index:6;background:rgba(0,0,0,.35);display:flex;align-items:flex-end}
+.mvsheet{width:100%;background:#232327;border-radius:16px 16px 0 0;padding:10px 0 22px;color:#e9eaee}
+.mvsheet .grab{background:#4a4b52;margin:0 auto 10px}
+.mvsheet .hd{font-size:14px;color:#e9eaee;padding:8px 18px 12px;border-bottom:1px solid #2f3036}
+.mvrow{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;color:#e9eaee;font-size:14px;padding:12px 18px;cursor:pointer;text-align:left}
+.mvrow:hover,.mvrow:focus-visible{background:#2d2e35}
+.mvrow .v{color:#8d9099}
+.mvrow .ck{margin-left:auto;color:#fff}
+.mvrow.danger{color:#ff6b6b}
+.mvrow .tgl{margin-left:auto;transform:scale(.8)}
+.mvslide{display:flex;align-items:center;gap:12px;padding:12px 18px}
+.mvslide input{flex:1;accent-color:#3f6df0;height:20px}
+.mvkv{display:flex;justify-content:space-between;gap:12px;padding:11px 18px;font-size:13px;border-top:1px solid #2f3036}.mvkv span:last-child{color:#9a9da6;text-align:right}
+/* Picture-in-picture: small floating player above the page underneath */
+.pip{position:absolute;right:12px;bottom:160px;width:176px;border-radius:12px;overflow:hidden;background:#000;z-index:11;box-shadow:0 10px 30px rgba(0,0,0,.35);cursor:pointer;touch-action:none}
+.pip img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.pip .pipbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.25)}.pip .pipbar i{display:block;height:100%;background:#fff}
+.pip button{position:absolute;top:6px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.5);color:#fff;display:grid;place-items:center;cursor:pointer}
+.pip .px{right:6px}.pip .pp{left:50%;top:50%;margin:-15px 0 0 -15px;width:30px;height:30px}
+
 @media (max-width:760px){
   .wrap{flex-direction:column;align-items:center;padding:12px 16px}
   .panel{position:static;width:100%;flex:none}
@@ -467,7 +533,7 @@ function toast(msg){
 const A = {};
 A.set = (k, v) => { S[k] = v; };
 A.tab = t => { S.tab = t; S.stack = []; };
-A.back = () => { S.stack.pop(); };
+A.back = () => { const t = curTop(); if (t && t.v === 'media') mvLeave(t); S.stack.pop(); };
 A.openSpace = id => { const sp = getSpace(id), upd = !!(sp && sp.owner !== 'me' && sp.shared && unreadN(sp) > 0); S.detailSeg = upd ? 'recent' : 'all'; if (upd) sp.unread = 0; S.spQ = ''; S.spSearchOn = false; S.stack.push({v:'space', id}); };
 A.openDir = (id, dir) => { const c = curTop(); S.stack.push({v:'space', id, dir, log:c && c.log ? {type:'dir'} : undefined}); };
 A.logOpenGroup = (id, key) => { S.stack.push({v:'space', id, log:{type:'group', key}}); };
@@ -495,7 +561,10 @@ A.doSaveNew = id => {
 };
 A.shares = () => { S.stack.push({v:'shares'}); };
 A.storage = () => { S.stack.push({v:'storage'}); };
-A.preview = (sid, fid, mode) => {  if (mode === 'own'){ const m = S.mine.find(x => x.id === fid); if (m){ m.viewedAt = '刚刚'; m.vr = Math.max(0, ...S.mine.map(x => x.vr || 0)) + 1; } } S.stack.push({v:'preview', s:sid || null, f:fid, mode, ended:false}); };
+A.preview = (sid, fid, mode) => {  if (mode === 'own'){ const m = S.mine.find(x => x.id === fid); if (m){ m.viewedAt = '刚刚'; m.vr = Math.max(0, ...S.mine.map(x => x.vr || 0)) + 1; } }
+  const f = mode === 'own' ? S.mine.find(x => x.id === fid) : (getSpace(sid) || {files:[]}).files.find(x => x.id === fid);
+  if (isMedia(f)){ S.stack.push(mvOpen(sid, f, mode)); return; }   // 图片、视频进入全屏浏览器
+  S.stack.push({v:'preview', s:sid || null, f:fid, mode, ended:false}); };
 A.playPreview = () => { const t = curTop(); if (t && t.v === 'preview') t.ended = true; };
 A.goSpaces = seg => { S.tab = 'spaces'; S.spaceSeg = seg; S.stack = []; };
 A.goFiles = () => { S.tab = 'files'; S.stack = []; };
@@ -766,6 +835,7 @@ function vHome(){
 }
 
 function bigThumb(f){
+  if (isMedia(f)) return `<span class="vbig media" role="button" tabindex="0" onclick="act('preview',null,'${f.id}','own')">${mediaCover(f)}</span>`;
   const bg = f.kind === 'image' ? 'linear-gradient(135deg,#b197fc,#74c0fc)' : f.kind === 'video' ? 'linear-gradient(135deg,#5c7cfa,#364fc7)' : KIND[f.kind].color;
   return `<span class="vbig" style="background:${bg}" role="button" tabindex="0" onclick="act('preview',null,'${f.id}','own')">${f.kind === 'video' ? '' : KIND[f.kind].label}${f.kind === 'video' ? `<span class="dur">${fmtDur(f.dur)}</span>${f.prog ? `<span class="pg"><i style="width:${f.prog * 100}%"></i></span>` : ''}` : ''}</span>`;
 }
@@ -984,7 +1054,7 @@ function entryHtml(e, grid){
     const cover = e.type === 'file'
       ? `<span class="gico" style="background:${k === 'image' ? 'linear-gradient(135deg,#b197fc,#74c0fc)' : k === 'video' ? 'linear-gradient(135deg,#5c7cfa,#364fc7)' : KIND[k].color}">${KIND[k].label}</span>`
       : folderIcon(104);
-    return `<div class="gitem"><div class="gcard" role="button" tabindex="0" onclick="${open}">${cover}</div>
+    return `<div class="gitem"><div class="gcard${k && isMedia(e.f) ? ' media' : ''}" role="button" tabindex="0" onclick="${open}">${k && isMedia(e.f) ? mediaCover(e.f) : cover}</div>
       <div class="gmeta"><div class="gname" role="button" tabindex="0" onclick="${open}">${esc(e.name)}</div>${menu ? `<button class="iconbtn sm" aria-label="更多操作" onclick="${menu}">⋮</button>` : ''}</div>
       <div class="gdate">${sub}</div></div>`;
   }
@@ -1126,7 +1196,7 @@ function spCard(s, f, owner, guest){
       <div class="meta"><div class="fn">${esc(f.name)}</div><div class="fs">${fTime(f)} · ${fmtSize(f.size)} ${tag}</div>${approve}</div>
       <button class="iconbtn sm" aria-label="更多操作" onclick="event.stopPropagation();act('spFileMenu','${s.id}','${f.id}')">⋮</button></div>`;
   }
-  return `<div class="gitem"><div class="gcard" role="button" tabindex="0" onclick="${open}"><span class="gico" style="background:${bg}">${KIND[k].label}</span></div>
+  return `<div class="gitem"><div class="gcard${isMedia(f) ? ' media' : ''}" role="button" tabindex="0" onclick="${open}">${isMedia(f) ? mediaCover(f) : `<span class="gico" style="background:${bg}">${KIND[k].label}</span>`}</div>
     <div class="gmeta"><div class="gname" role="button" tabindex="0" onclick="${open}">${esc(f.name)}</div><button class="iconbtn sm" aria-label="更多操作" onclick="act('spFileMenu','${s.id}','${f.id}')">⋮</button></div>
     <div class="gdate">${fTime(f)}<br>${fmtSize(f.size)} ${tag}</div>${approve}</div>`;
 }
@@ -1463,7 +1533,7 @@ function composeHtml(){
     <div class="cnote">演示：模拟 ${esc(c.p)} 的发帖页，文案由 KiteBox 预填，用户可改。发布或取消后回到「分享链接已创建」面板。</div></div>`;
 }
 function overlays(){
-  let o = pickerHtml() + csHtml() + composeHtml();
+  let o = pipHtml() + pickerHtml() + csHtml() + composeHtml();
   if (S.sheet){
     o += `<div class="scrim" onclick="act('closeSheet')"><div class="sheet" onclick="event.stopPropagation()">${sheetHtml(S.sheet)}</div></div>`;
   }
@@ -1495,11 +1565,399 @@ function panel(){
         <li>在「我的」→「我的分享」里查看和取消刚创建的文件分享，停止或重新分享「我的课程资料」。</li>
         <li>在「文件」里删除一个文件，观察确认文案和「不进回收站」的说明。</li>
         <li>在「首页」或「文件」点右上角搜索：未输入时显示搜索历史（点 ↖ 填入、点扫帚清空）；输入「封面」或「mp4」看结果，只搜云盘文件，不出现空间里的文件。</li>
+        <li>打开「剪辑素材库」→「素材图库」点任一图片，或在首页「最近查看」点「旅行vlog.mp4」：上下滑切换文件，图片双击放大；视频点画面暂停，拖进度条定位，点右下角设置调倍速、字幕、亮度音量，或开启画中画后继续浏览。</li>
         <li>在「我的课程资料」里点右下角「+」，选择照片、视频、文件或新建文件夹（和「文件」页一致）；上传无需审核，关注者立即可见，并出现在「更新」里。</li>
       </ol>
       <div class="note">占位内容：举报、删除空间的后果文案、失效页文案、设置子页，均为待设计项，原型中只做提示。会员相关（开通、试看、扩容）待产品功能稳定后再加回。</div>
     </div>`;
 }
+
+
+/* ---------- 图片 / 视频浏览器 ----------
+   对齐参考视频：黑底全屏，每个文件一页，上下滑切换同一位置下的图片和视频。
+   顶部：返回、文件名、⋮ 更多；视频底部：当前时间、进度条、总时长、设置（倍速、字幕、投屏、画中画、手势、亮度、音量）。
+   图片：双击放大 / 还原，双指或滚轮缩放，放大后拖动查看细节。
+   视频：打开即播放，记住播放进度；点画面暂停 / 播放，长按 2 倍速，可开启画中画后继续浏览其他页面。 */
+const isMedia = f => !!f && (f.kind === 'image' || f.kind === 'video');
+const MV = {timer:null, loaded:new Set(), toast:null, toastT:null, hudT:null};
+const ART = new Map();
+const PAL = [
+  ['#9ad0f5', '#fde2c4', '#f7b267', '#4f7a5a', '#2f4f3a'],
+  ['#2b2d64', '#d97b93', '#ffd29d', '#4a3f6b', '#231d3a'],
+  ['#bfe3e0', '#f4f1de', '#fff3b0', '#81b29a', '#3d5a50'],
+  ['#ffb385', '#ffe0b5', '#fff6e0', '#c86b4a', '#6d3b2b'],
+  ['#0f2a44', '#3a6f9b', '#e8f1f8', '#29506f', '#0b1b2b'],
+  ['#e0c3fc', '#f9f1ff', '#ffffff', '#9d8ec7', '#5c4d8a']
+];
+const RATES = [.5, 1, 1.25, 1.5, 2, 3];
+const SUBS = ['大家好，今天带大家看一下', '这一段我们先把素材整理好', '然后按顺序放进时间线', '注意转场的节奏不要太快', '最后导出就可以了'];
+function hashOf(s){ let h = 7; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+function mediaDims(f){
+  const h = hashOf(f.name);
+  if (f.kind === 'video') return h % 3 === 0 ? [1080, 1920] : [1920, 1080];
+  return h % 3 === 0 ? [4032, 3024] : [3024, 4032];
+}
+// 占位图：按文件名生成固定的风景插画，代替真实图片 / 视频画面
+function art(f){
+  const key = f.name + f.kind;
+  if (ART.has(key)) return ART.get(key);
+  const h = hashOf(f.name), p = PAL[h % PAL.length], [dw, dh] = mediaDims(f);
+  const W = 600, H = Math.round(600 * dh / dw);
+  const sx = W * (.22 + (h % 7) / 12), sy = H * (.26 + (h % 5) / 40), r = W * (.07 + (h % 4) / 50);
+  const y1 = H * .62, y2 = H * .74, a = (h >> 3) % 60, b = (h >> 6) % 80;
+  const svgs = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">`
+    + `<defs><linearGradient id="k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p[0]}"/><stop offset="1" stop-color="${p[1]}"/></linearGradient></defs>`
+    + `<rect width="${W}" height="${H}" fill="url(#k)"/>`
+    + `<circle cx="${sx}" cy="${sy}" r="${r}" fill="${p[2]}" opacity=".92"/>`
+    + `<path d="M0 ${y1} Q ${W * .25} ${y1 - 90 - a} ${W * .5} ${y1 - 20} T ${W} ${y1 - 40} V ${H} H 0 Z" fill="${p[3]}"/>`
+    + `<path d="M0 ${y2} Q ${W * .35} ${y2 - 60 - b} ${W * .7} ${y2 + 10} T ${W} ${y2 - 30} V ${H} H 0 Z" fill="${p[4]}"/>`
+    + (f.kind === 'video' ? `<rect width="${W}" height="${H}" fill="#000" opacity=".12"/>` : '')
+    + `</svg>`;
+  const uri = 'data:image/svg+xml,' + encodeURIComponent(svgs);
+  ART.set(key, uri);
+  return uri;
+}
+const playIco = s => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>`;
+const pauseIco = s => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>`;
+const MVI = {
+  more:'<circle cx="12" cy="5.5" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="12" cy="18.5" r="1.3"/>',
+  set:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  speed:'<path d="M4.5 16a8 8 0 1 1 15 0"/><path d="M12 12l3.5-3"/>',
+  cc:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M10.5 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6"/>',
+  cast:'<path d="M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><path d="M3 12a8 8 0 0 1 8 8M3 16a4 4 0 0 1 4 4M3 20h.01"/>',
+  pip:'<rect x="3" y="4" width="18" height="16" rx="2.5"/><rect x="12" y="12" width="7" height="6" rx="1"/><path d="M7 8l3 3M7 11V8h3"/>',
+  hand:'<path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11M12 10V9a1.5 1.5 0 0 1 3 0v2M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.7-2.3L4.2 15.5a1.5 1.5 0 0 1 2.3-1.9L9 16V11"/>',
+  sunS:'<circle cx="12" cy="12" r="3"/><path d="M12 4v1.5M12 18.5V20M4 12h1.5M18.5 12H20"/>',
+  sunL:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
+  mute:'<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M16 10l4 4M20 10l-4 4"/>',
+  vol:'<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+  download:'<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>',
+  share:'<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M6 12v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+  saveNew:'<path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4.8 4.8 0 0 1 0 9.5z"/><path d="M12 10v6M9.5 13.5L12 16l2.5-2.5"/>',
+  dots:'<circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/>',
+  replay:'<path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/>',
+  next:'<path d="M6 5l9 7-9 7z"/><path d="M18 5v14"/>'
+};
+const mvi = (n, s) => `<svg viewBox="0 0 24 24" width="${s || 22}" height="${s || 22}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${MVI[n]}</svg>`;
+const hms = sec => { sec = Math.floor(sec); const p = n => String(n).padStart(2, '0'); return `${p(Math.floor(sec / 3600))}:${p(Math.floor(sec % 3600 / 60))}:${p(sec % 60)}`; };
+const rateLabel = r => (Number.isInteger(r) ? r.toFixed(1) : String(r)) + 'X';
+
+// 缩略图：图片、视频显示画面；视频叠加播放按钮、时长和上次观看进度
+function mediaCover(f){
+  return `<span class="mcov" style="background-image:url('${art(f)}')">${f.kind === 'video' ? `<span class="mplay">${playIco(16)}</span><span class="dur">${fmtDur(f.dur)}</span>${f.prog ? `<span class="pg"><i style="width:${f.prog * 100}%"></i></span>` : ''}` : ''}</span>`;
+}
+
+function mvFile(t, id){ return t.mode === 'own' ? S.mine.find(x => x.id === id) : (getSpace(t.s) || {files:[]}).files.find(x => x.id === id); }
+function mvIds(t){ return t.ids.filter(id => mvFile(t, id)); }
+function mvCur(t){ return mvFile(t, mvIds(t)[t.i]); }
+function mvG(){ return S.mvG || (S.mvG = {tap:true, long:true, bright:.6, vol:.5}); }
+function mvSiblings(sid, f, mode){
+  if (mode === 'own'){
+    if (!S.stack.length && S.tab === 'home') return S.mine.filter(m => m.vr && isMedia(m)).sort((a, b) => b.vr - a.vr);
+    return sortEntries(S.mine.filter(m => isMedia(m) && fileLoc(m) === fileLoc(f)).map(fileEntry)).map(e => e.f);
+  }
+  const sp = getSpace(sid);
+  return visF(sp, mode === 'owner').filter(x => isMedia(x) && (x.folder || '') === (f.folder || ''));
+}
+function mvOpen(sid, f, mode){
+  if (S.pip){ mvLeave(S.pip); S.pip = null; }
+  const list = mvSiblings(sid, f, mode);
+  const ids = list.some(x => x.id === f.id) ? list.map(x => x.id) : [f.id];
+  const t = {v:'media', s:sid || null, mode, ids, i:ids.indexOf(f.id), z:1, x:0, y:0, play:false, time:{}, rate:1, cc:false, ended:false, sheet:null};
+  mvEnter(t, true);
+  return t;
+}
+function mvMarkViewed(f){ if (S.mine.includes(f)){ f.viewedAt = '刚刚'; f.vr = Math.max(0, ...S.mine.map(x => x.vr || 0)) + 1; } }
+// 进入某一页：图片先模糊占位再清晰；视频从上次进度继续并自动播放
+function mvEnter(t, first){
+  const f = mvCur(t);
+  t.z = 1; t.x = 0; t.y = 0; t.ended = false;
+  if (!f) return;
+  if (!first) mvMarkViewed(f);
+  if (!MV.loaded.has(f.id)) setTimeout(() => { MV.loaded.add(f.id); const el = document.querySelector(`.mvs[data-id="${f.id}"] .mvimg`); if (el) el.classList.remove('ld'); const sp = document.querySelector(`.mvs[data-id="${f.id}"] .mvspin`); if (sp) sp.remove(); }, 450);
+  if (f.kind === 'video'){
+    const start = t.time[f.id] != null ? t.time[f.id] : (f.prog && f.prog < .98 ? Math.round(f.prog * f.dur) : 0);
+    t.time[f.id] = start;
+    if (start > 0 && first) mvToast(`从上次 ${hms(start)} 继续播放`, 'mvRestart', '从头播放');
+    t.play = true;
+  } else t.play = false;
+  mvTimer(t);
+}
+function mvSaveProg(t){
+  mvIds(t).forEach(id => { const f = mvFile(t, id); if (f && f.kind === 'video' && t.time[id] != null && S.mine.includes(f)){ const p = t.time[id] / f.dur; f.prog = p >= .98 ? 0 : Math.round(p * 100) / 100; } });
+}
+function mvLeave(t){ mvSaveProg(t); t.play = false; t.sheet = null; clearInterval(MV.timer); MV.timer = null; MV.toast = null; }
+function mvTimer(t){
+  clearInterval(MV.timer); MV.timer = null;
+  if (!t.play) return;
+  MV.timer = setInterval(() => {
+    if ((curTop() !== t && S.pip !== t) || !t.play){ clearInterval(MV.timer); MV.timer = null; return; }
+    const f = mvCur(t); if (!f || f.kind !== 'video') return;
+    t.time[f.id] = Math.min(f.dur, (t.time[f.id] || 0) + .25 * (t.boost ? 2 : t.rate));
+    if (t.time[f.id] >= f.dur){ t.play = false; t.ended = true; clearInterval(MV.timer); MV.timer = null; render(); return; }
+    mvSyncTime(t, f);
+  }, 250);
+}
+function mvSyncTime(t, f){
+  const p = (t.time[f.id] || 0) / f.dur * 100;
+  const fill = $('mvFill'), knob = $('mvKnob'), cur = $('mvCurT'), pb = $('pipFill'), sub = $('mvSub');
+  if (fill) fill.style.width = p + '%';
+  if (knob) knob.style.left = p + '%';
+  if (cur) cur.textContent = hms(t.time[f.id] || 0);
+  if (pb) pb.style.width = p + '%';
+  if (sub) sub.textContent = SUBS[Math.floor((t.time[f.id] || 0) / 4) % SUBS.length];
+}
+function mvToast(text, actName, label){
+  MV.toast = {text, act:actName || null, label:label || ''};
+  clearTimeout(MV.toastT);
+  MV.toastT = setTimeout(() => { MV.toast = null; const el = $('mvToast'); if (el) el.remove(); }, actName ? 4000 : 2200);
+}
+
+function mvPage(t, f, k){
+  const cur = k === t.i, sp = t.s ? getSpace(t.s) : null;
+  const ld = MV.loaded.has(f.id) ? '' : ' ld';
+  const g = mvG(), lit = `filter:brightness(${(.5 + g.bright).toFixed(2)})`;
+  const tf = cur && f.kind === 'image' ? `transform:translate(${t.x}px,${t.y}px) scale(${t.z});` : '';
+  const img = `<img class="mvimg${ld}" src="${art(f)}" alt="" draggable="false" style="${tf}${f.kind === 'video' ? lit : ''}">${ld ? '<span class="mvspin"></span>' : ''}`;
+  const more = `<button class="iconbtn" aria-label="更多" onclick="mvDo('mvSheet','more')">${mvi('more', 22)}</button>`;
+  const head = `<header class="mvhead"><button class="iconbtn" aria-label="返回" onclick="act('back')">‹</button><div class="n">${esc(f.name)}</div>${more}</header>`;
+  if (f.kind === 'image'){
+    return `<section class="mvs img" data-id="${f.id}" aria-label="${esc(f.name)}">${head}<div class="mvbody">${img}</div><footer class="mvfoot"></footer></section>`;
+  }
+  const time = t.time[f.id] != null ? t.time[f.id] : (f.prog ? f.prog * f.dur : 0), p = time / f.dur * 100;
+  let over = '';
+  if (cur && t.ended){
+    const ids = mvIds(t), nf = ids[t.i + 1] && mvFile(t, ids[t.i + 1]);
+    over = `<div class="mvend"><button class="re" onclick="mvDo('mvReplay')">${mvi('replay', 18)}重新播放</button>${nf ? `<button class="nx" onclick="mvSwipeTo(curTop(),${t.i + 1})">${mvi('next', 16)}<span>下一个：${esc(nf.name)}</span></button>` : ''}</div>`;
+  } else {
+    over = `<button class="mvpp" aria-label="${cur && t.play ? '暂停' : '播放'}" onclick="mvDo('mvToggle')">${cur && t.play ? pauseIco(20) : playIco(20)}</button>`;
+  }
+  const sub = cur && t.cc ? `<div class="mvsub" id="mvSub">${SUBS[Math.floor(time / 4) % SUBS.length]}</div>` : '';
+  const ids = cur ? ['mvCurT', 'mvBar', 'mvFill', 'mvKnob', 'mvTip'] : ['', '', '', '', ''];
+  const id = n => ids[n] ? ` id="${ids[n]}"` : '';
+  return `<section class="mvs vid${cur && t.play ? ' playing' : ''}" data-id="${f.id}" aria-label="${esc(f.name)}">${head}
+    <div class="mvbody">${img}${over}${sub}</div>
+    <footer class="mvfoot"><span${id(0)}>${hms(time)}</span>
+      <div class="mvbar"${id(1)} role="slider" aria-label="播放进度" aria-valuemin="0" aria-valuemax="${f.dur}" aria-valuenow="${Math.floor(time)}" tabindex="0"><i${id(2)} style="width:${p}%"></i><b${id(3)} style="left:${p}%"></b><span class="tip"${id(4)}></span></div>
+      <span>${hms(f.dur)}</span>
+      <button class="set" aria-label="播放设置" onclick="mvDo('mvSheet','set')">${mvi('set', 20)}</button></footer>
+  </section>`;
+}
+function mvSheetHtml(t){
+  if (!t.sheet) return '';
+  const f = mvCur(t), g = mvG(), sp = t.s ? getSpace(t.s) : null;
+  const row = (ic, label, a, extra, cls) => `<button class="mvrow${cls ? ' ' + cls : ''}" onclick="${a}">${ic ? mvi(ic, 20) : ''}<span>${label}</span>${extra || ''}</button>`;
+  let h = '<div class="grab"></div>';
+  if (t.sheet === 'set'){
+    h += row('speed', `倍速 <span class="v">· ${rateLabel(t.rate)}</span>`, "mvDo('mvSheet','rate')")
+      + row('cc', `字幕 <span class="v">· ${t.cc ? '开启' : '关闭'}</span>`, "mvDo('mvCc')")
+      + row('cast', '投屏', "mvDo('mvCast')")
+      + row('pip', '开启画中画模式', "mvDo('mvPip')")
+      + row('hand', '手势设置', "mvDo('mvSheet','gest')")
+      + `<div class="mvslide">${mvi('sunS', 18)}<input type="range" min="0" max="1" step=".01" value="${g.bright}" aria-label="亮度" oninput="mvBright(this.value)">${mvi('sunL', 20)}</div>`
+      + `<div class="mvslide">${mvi('mute', 18)}<input type="range" min="0" max="1" step=".01" value="${g.vol}" aria-label="音量" oninput="mvVol(this.value)">${mvi('vol', 20)}</div>`;
+  } else if (t.sheet === 'rate'){
+    h += `<div class="hd">倍速播放</div>` + RATES.map(r => row('', rateLabel(r), `mvDo('mvRate',${r})`, t.rate === r ? '<span class="ck">✓</span>' : '')).join('');
+  } else if (t.sheet === 'gest'){
+    h += `<div class="hd">手势设置</div>`
+      + row('', '点击画面暂停 / 播放', "mvDo('mvGest','tap')", `<span class="tgl${g.tap ? ' on' : ''}"><i></i></span>`)
+      + row('', '长按 2 倍速播放', "mvDo('mvGest','long')", `<span class="tgl${g.long ? ' on' : ''}"><i></i></span>`)
+      + `<p style="margin:6px 18px 0;font-size:12px;color:#8d9099">上下滑动切换文件，双指缩放图片，始终开启。</p>`;
+  } else if (t.sheet === 'more'){
+    h += `<div class="hd" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(f.name)}</div>`;
+    if (t.mode === 'own'){
+      h += row('download', '下载', "act('downloadOwn')") + row('share', '分享', `act('shareStart','file','${f.id}')`)
+        + row('info', '详情', "mvDo('mvSheet','info')") + row('dots', '重命名、移动、删除…', `act('fileMenu','${f.id}')`);
+    } else if (t.mode === 'owner'){
+      h += row('download', '下载', "act('downloadOwn')") + row('info', '详情', "mvDo('mvSheet','info')") + row('dots', '重命名、从空间移除…', `act('spFileMenu','${sp.id}','${f.id}')`);
+    } else {
+      const saved = S.mine.some(m => m.from === sp.id && m.srcId === f.id);
+      h += row('saveNew', saved ? '已在「文件」中' : '保存到我的文件', saved ? "mvDo('mvSheet',null)" : `mvDo('mvSave')`) + row('info', '详情', "mvDo('mvSheet','info')");
+    }
+  } else if (t.sheet === 'info'){
+    const [w, hh] = mediaDims(f);
+    const loc = t.mode === 'own' ? (f.from ? '来自 ' + (getSpace(f.from) || {name:''}).name : locName(fileLoc(f))) : sp.name + (f.folder ? ' / ' + f.folder : '');
+    const when = t.mode === 'own' ? fdate(fAt(f)) : fTime(f);
+    h += `<div class="hd" style="white-space:normal">${esc(f.name)}</div>`
+      + `<div class="mvkv" style="border-top:0"><span>类型</span><span>${KIND[f.kind].label} · ${esc(f.name.split('.').pop().toUpperCase())}</span></div>`
+      + `<div class="mvkv"><span>${f.kind === 'video' ? '分辨率' : '尺寸'}</span><span>${w} × ${hh}</span></div>`
+      + (f.kind === 'video' ? `<div class="mvkv"><span>时长</span><span>${hms(f.dur)}</span></div>` : '')
+      + `<div class="mvkv"><span>大小</span><span>${fmtSize(f.size)}</span></div>`
+      + `<div class="mvkv"><span>位置</span><span>${esc(loc)}</span></div>`
+      + (when ? `<div class="mvkv"><span>${t.mode === 'own' ? '添加时间' : '上传时间'}</span><span>${esc(when)}</span></div>` : '');
+  }
+  return `<div class="mvscrim" onclick="if(event.target===this)mvDo('mvSheet',null)"><div class="mvsheet" role="dialog">${h}</div></div>`;
+}
+function mvHtml(t){
+  const ids = mvIds(t);
+  if (!ids.length) return '';
+  if (t.i >= ids.length) t.i = ids.length - 1;
+  const f = mvCur(t);
+  const pages = ids.map((id, k) => Math.abs(k - t.i) <= 2 ? mvPage(t, mvFile(t, id), k) : `<section class="mvs" data-id="${id}"></section>`).join('');
+  const toast = MV.toast ? `<div class="mvtoast" id="mvToast">${esc(MV.toast.text)}${MV.toast.act ? `<button onclick="mvDo('${MV.toast.act}')">${esc(MV.toast.label)}</button>` : ''}</div>` : '';
+  const zoom = f.kind === 'image' && t.z > 1.01 ? `<div class="mvzoom" id="mvZoom">${Math.round(t.z * 100)}%</div>` : '';
+  return `<div class="mv" id="mv" role="dialog" aria-label="${f.kind === 'video' ? '视频播放' : '图片浏览'}">
+    <div class="mvtrack" id="mvTrack" style="transform:translateY(${-t.i * 100}%)">${pages}</div>
+    ${toast}${zoom}${mvSheetHtml(t)}
+  </div>`;
+}
+function pipHtml(){
+  const t = S.pip; if (!t || curTop() === t) return '';
+  const f = mvCur(t); if (!f) return '';
+  const p = (t.time[f.id] || 0) / f.dur * 100;
+  return `<div class="pip" role="button" tabindex="0" aria-label="回到全屏播放" onclick="act('pipBack')"><img src="${art(f)}" alt="">
+    <button class="pp" aria-label="${t.play ? '暂停' : '播放'}" onclick="event.stopPropagation();act('pipToggle')">${t.play ? pauseIco(14) : playIco(14)}</button>
+    <button class="px" aria-label="关闭画中画" onclick="event.stopPropagation();act('pipClose')">${svg('close', 14)}</button>
+    <span class="pipbar"><i id="pipFill" style="width:${p}%"></i></span></div>`;
+}
+
+// 浏览器内的操作走 mvDo：只改浏览器自己的状态，再整体重绘
+const MA = {};
+MA.mvGo = k => { const t = curTop(), n = mvIds(t).length; if (k < 0 || k >= n || k === t.i) return; mvSaveProg(t); t.i = k; t.sheet = null; mvEnter(t); };
+MA.mvToggle = () => { const t = curTop(), f = mvCur(t); if (t.ended){ MA.mvReplay(); return; } t.play = !t.play; if (t.play && (t.time[f.id] || 0) >= f.dur) t.time[f.id] = 0; mvTimer(t); };
+MA.mvReplay = () => { const t = curTop(), f = mvCur(t); t.time[f.id] = 0; t.ended = false; t.play = true; mvTimer(t); };
+MA.mvRestart = () => { const t = curTop(), f = mvCur(t); t.time[f.id] = 0; MV.toast = null; t.ended = false; t.play = true; mvTimer(t); };
+MA.mvSheet = k => { curTop().sheet = k; };
+MA.mvRate = r => { const t = curTop(); t.rate = r; t.sheet = null; mvToast(`已切换到 ${rateLabel(r)} 速度播放`); };
+MA.mvCc = () => { const t = curTop(); t.cc = !t.cc; t.sheet = null; mvToast(t.cc ? '已开启字幕' : '已关闭字幕'); };
+MA.mvCast = () => { curTop().sheet = null; mvToast('正在搜索同一网络下的投屏设备（演示）'); };
+MA.mvGest = k => { const g = mvG(); g[k] = !g[k]; };
+MA.mvSave = () => { const t = curTop(); t.sheet = null; A.saveFile(t.s, mvCur(t).id); };
+MA.mvPip = () => { const t = curTop(); t.sheet = null; S.pip = t; S.stack.pop(); if (!t.play){ t.play = true; mvTimer(t); } toast('已开启画中画，可以继续浏览其他页面'); };
+A.pipBack = () => { const t = S.pip; S.pip = null; S.stack.push(t); };
+A.pipToggle = () => { const t = S.pip; t.play = !t.play; mvTimer(t); };
+A.pipClose = () => { mvLeave(S.pip); S.pip = null; };
+function mvDo(name, ...args){ MA[name](...args); render(); }
+function mvBright(v){ mvG().bright = +v; document.querySelectorAll('.mvs.vid .mvimg').forEach(el => { el.style.filter = `brightness(${(.5 + +v).toFixed(2)})`; }); }
+function mvVol(v){
+  mvG().vol = +v;
+  const mv = $('mv'); if (!mv) return;
+  let hud = $('mvHud');
+  if (!hud){ hud = document.createElement('div'); hud.id = 'mvHud'; hud.className = 'mvhud'; mv.appendChild(hud); }
+  hud.innerHTML = `${mvi(+v ? 'vol' : 'mute', 16)}<i><b style="width:${v * 100}%"></b></i>`;
+  clearTimeout(MV.hudT); MV.hudT = setTimeout(() => { const h = $('mvHud'); if (h) h.remove(); }, 1200);
+}
+
+/* 手势：上下滑切换文件；图片双击放大、双指或滚轮缩放、放大后拖动；视频点画面暂停 / 播放、长按 2 倍速 */
+function mvBind(){
+  const t = curTop(), track = $('mvTrack');
+  if (!t || t.v !== 'media' || !track) return;
+  const pts = new Map();
+  let g = null, lastTap = 0, tapT = null, pressT = null;
+  const page = () => track.querySelector(`.mvs[data-id="${mvCur(t).id}"]`);
+  const body = () => page().querySelector('.mvbody');
+  const img = () => page().querySelector('.mvimg');
+  const H = () => track.clientHeight;
+  const clampPan = () => {
+    const el = img(), b = body(); if (!el) return;
+    const mx = Math.max(0, (el.offsetWidth * t.z - b.clientWidth) / 2), my = Math.max(0, (el.offsetHeight * t.z - b.clientHeight) / 2);
+    t.x = Math.max(-mx, Math.min(mx, t.x)); t.y = Math.max(-my, Math.min(my, t.y));
+  };
+  const applyImg = anim => { const el = img(); if (!el) return; el.classList.toggle('anim', !!anim); el.style.transform = `translate(${t.x}px,${t.y}px) scale(${t.z})`; const z = $('mvZoom'); if (z) z.textContent = Math.round(t.z * 100) + '%'; };
+  const zoomAt = (nz, cx, cy, anim) => {
+    const r = body().getBoundingClientRect();
+    const ox = cx - r.left - r.width / 2, oy = cy - r.top - r.height / 2;
+    nz = Math.max(1, Math.min(4, nz));
+    t.x = ox - (ox - t.x) * nz / t.z; t.y = oy - (oy - t.y) * nz / t.z; t.z = nz;
+    if (t.z <= 1.01){ t.z = 1; t.x = 0; t.y = 0; }
+    clampPan(); applyImg(anim);
+  };
+  const syncZoomTag = () => { if ((t.z > 1.01) !== !!$('mvZoom')) render(); };
+  const skip = e => t.sheet || e.target.closest('button,.mvbar,.mvtoast');
+  track.onwheel = e => { if (mvCur(t).kind !== 'image' || t.sheet) return; e.preventDefault(); zoomAt(t.z * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX, e.clientY); syncZoomTag(); };
+  track.onpointerdown = e => {
+    if (skip(e)) return;
+    track.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if (pts.size === 2 && mvCur(t).kind === 'image'){
+      const [a, b] = [...pts.values()];
+      g = {mode:'pinch', d0:Math.hypot(a.x - b.x, a.y - b.y), z0:t.z};
+      clearTimeout(pressT); return;
+    }
+    if (pts.size > 1) return;
+    g = {mode:null, x0:e.clientX, y0:e.clientY, t0:Date.now(), tx:t.x, ty:t.y, inBody:!!e.target.closest('.mvbody')};
+    if (mvCur(t).kind === 'video' && t.play && mvG().long){
+      pressT = setTimeout(() => { if (g && !g.mode){ g.mode = 'press'; t.boost = true; mvToast('2X 快进中'); render(); } }, 500);
+    }
+  };
+  track.onpointermove = e => {
+    if (!pts.has(e.pointerId) || !g) return;
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if (g.mode === 'pinch'){
+      const [a, b] = [...pts.values()];
+      zoomAt(g.z0 * Math.hypot(a.x - b.x, a.y - b.y) / g.d0, (a.x + b.x) / 2, (a.y + b.y) / 2); return;
+    }
+    const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+    if (!g.mode){
+      if (Math.hypot(dx, dy) < 8) return;
+      clearTimeout(pressT);
+      g.mode = t.z > 1.01 ? 'pan' : Math.abs(dy) > Math.abs(dx) ? 'page' : 'none';
+    }
+    if (g.mode === 'pan'){ t.x = g.tx + dx; t.y = g.ty + dy; clampPan(); applyImg(); return; }
+    if (g.mode === 'page'){
+      const n = mvIds(t).length, edge = (t.i === 0 && dy > 0) || (t.i === n - 1 && dy < 0);
+      track.classList.remove('anim');
+      track.style.transform = `translateY(calc(${-t.i * 100}% + ${edge ? dy / 3 : dy}px))`;
+    }
+  };
+  const end = e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.delete(e.pointerId);
+    clearTimeout(pressT);
+    if (!g) return;
+    if (g.mode === 'pinch'){ if (!pts.size){ g = null; syncZoomTag(); } return; }
+    if (pts.size) return;
+    const dx = e.clientX - g.x0, dy = e.clientY - g.y0, dt = Date.now() - g.t0, mode = g.mode, inBody = g.inBody;
+    g = null;
+    if (mode === 'press'){ t.boost = false; MV.toast = null; render(); return; }
+    if (mode === 'page'){
+      const n = mvIds(t).length, v = Math.abs(dy) / dt;
+      let k = t.i;
+      if ((Math.abs(dy) > H() * .18 || v > .5) && Math.abs(dy) > 24) k = dy < 0 ? Math.min(n - 1, t.i + 1) : Math.max(0, t.i - 1);
+      if (k === t.i && Math.abs(dy) > 24 && ((dy > 0 && t.i === 0) || (dy < 0 && t.i === n - 1))) mvToast(dy > 0 ? '已经是第一个了' : '已经是最后一个了');
+      mvSwipeTo(t, k); return;
+    }
+    if (mode) return;
+    // 点击：图片区分单击和双击（双击放大）；视频单击暂停 / 播放
+    const f = mvCur(t), now = Date.now();
+    if (f.kind === 'video'){ if (mvG().tap && !t.ended && inBody) mvDo('mvToggle'); return; }
+    if (now - lastTap < 300){ clearTimeout(tapT); lastTap = 0; zoomAt(t.z > 1.01 ? 1 : 2.5, e.clientX, e.clientY, true); syncZoomTag(); return; }
+    lastTap = now;
+  };
+  track.onpointerup = end; track.onpointercancel = end;
+  const bar = $('mvBar');
+  if (bar){
+    const f = mvCur(t);
+    const seek = e => {
+      const r = bar.getBoundingClientRect(), q = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      t.time[f.id] = q * f.dur; t.ended = false;
+      mvSyncTime(t, f);
+      const tip = $('mvTip'); if (tip){ tip.style.left = q * 100 + '%'; tip.textContent = hms(q * f.dur); }
+    };
+    bar.onpointerdown = e => { e.stopPropagation(); bar.setPointerCapture(e.pointerId); bar.classList.add('drag'); seek(e); };
+    bar.onpointermove = e => { if (bar.classList.contains('drag')) seek(e); };
+    bar.onpointerup = bar.onpointercancel = () => { if (!bar.classList.contains('drag')) return; bar.classList.remove('drag'); render(); };
+    bar.onkeydown = e => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight'){ e.preventDefault(); e.stopPropagation(); t.time[f.id] = Math.max(0, Math.min(f.dur, (t.time[f.id] || 0) + (e.key === 'ArrowLeft' ? -5 : 5))); mvSyncTime(t, f); } };
+  }
+}
+function mvSwipeTo(t, k){
+  const track = $('mvTrack');
+  if (!track) return;
+  track.classList.add('anim');
+  track.style.transform = `translateY(${-k * 100}%)`;
+  if (k === t.i){ setTimeout(() => track.classList.remove('anim'), 320); return; }
+  setTimeout(() => { MA.mvGo(k); render(); }, 300);
+}
+document.addEventListener('keydown', e => {
+  const t = curTop();
+  if (!t || t.v !== 'media' || S.sheet || S.dialog || /INPUT|TEXTAREA/.test((e.target || {}).tagName || '')) return;
+  if (e.key === 'Escape'){ if (t.sheet) mvDo('mvSheet', null); else act('back'); return; }
+  if (t.sheet) return;
+  if (e.key === 'ArrowDown'){ e.preventDefault(); if (t.i < mvIds(t).length - 1) mvSwipeTo(t, t.i + 1); }
+  else if (e.key === 'ArrowUp'){ e.preventDefault(); if (t.i > 0) mvSwipeTo(t, t.i - 1); }
+  else if (e.key === ' ' && mvCur(t).kind === 'video'){ e.preventDefault(); mvDo('mvToggle'); }
+});
 
 /* ---------- render ---------- */
 function render(){
@@ -1526,6 +1984,9 @@ function render(){
     right = isDir ? `<div class="pill"><button class="iconbtn" aria-label="搜索" onclick="act('spSearchOn')">${svg('search', 22)}</button></div>` : `<button class="iconbtn" aria-label="搜索" onclick="act('spSearchOn')">${svg('search', 22)}</button><button class="iconbtn" aria-label="更多" onclick="act('spaceMenu','${s.id}')">⋯</button>`;
     body = vSpace(s, t);
     bottom = spaceBottom(s);
+  } else if (t.v === 'media'){
+    if (!mvIds(t).length){ S.stack.pop(); return render(); }
+    bottom = mvHtml(t);
   } else if (t.v === 'preview'){
     title = '预览';
     const p = vPreview(t);
@@ -1566,6 +2027,7 @@ function render(){
   const c2 = document.querySelector('.content');
   if (c2) c2.scrollTop = y;
   document.querySelectorAll('.logsentinel').forEach(el => { if (!window.IntersectionObserver) return; const io = new IntersectionObserver(es => { if (es[0].isIntersecting){ io.disconnect(); setTimeout(() => act('logMore', el.dataset.k), 0); } }, {root:c2, rootMargin:'300px'}); io.observe(el); });
+  mvBind();
   $('panel').innerHTML = panel();
   if (S.focusSp){ S.focusSp = false; const q2 = $('spq'); if (q2) q2.focus(); }
   if (S.dialog && S.dialog.input != null){ const di = $('dlgIn'); if (di){ di.focus(); di.select(); } }
