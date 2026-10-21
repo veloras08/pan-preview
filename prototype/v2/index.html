@@ -119,6 +119,23 @@ select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line
 .mname{font-size:13px;color:var(--muted);text-align:center;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mi{display:flex;align-items:center;gap:18px;width:100%;border:0;background:none;padding:14px 8px;font-size:17px;cursor:pointer;text-align:left;color:#111}
 .mi.danger{color:var(--danger)}.mhr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.shobj{display:flex;align-items:center;gap:12px;margin:2px 0 16px}.shobj .thumb{width:40px;height:40px;flex:0 0 40px;border-radius:10px}.shobj .fn{font-size:16px;color:#111;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shbox{background:#f7f8fa;border:1px solid #eceef1;border-radius:16px;padding:0 14px}
+.shrow{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;border:0;background:none;text-align:left;font:inherit;cursor:pointer}
+.shrow+.shrow{border-top:1px solid var(--line)}.shrow .t{font-size:15px;color:#111}.shrow .d{font-size:12px;color:var(--muted);margin-top:3px}
+.shgo{display:block;width:100%;height:50px;border:0;border-radius:25px;background:#111;color:#fff;font-size:16px;cursor:pointer;margin-top:18px}
+.shhead{font-size:15px;color:#111;padding-bottom:14px;border-bottom:1px solid var(--line);margin:0 -18px;padding-left:18px;padding-right:18px}
+.shlink{display:flex;align-items:center;gap:12px;margin:16px 0 14px}
+.shlico{width:40px;height:40px;flex:0 0 40px;border-radius:10px;background:linear-gradient(180deg,#b9c4d3,#8e9db1);display:grid;place-items:center;color:#fff}
+.shurl{font-size:15px;color:#111;word-break:break-all}.shmeta{font-size:12px;color:#9aa0aa;margin-top:3px}.shmeta span+span{margin-left:10px}
+.shplat{display:flex;gap:10px;overflow-x:auto;padding:16px 0 2px;margin-top:18px;border-top:1px solid var(--line);scrollbar-width:none}
+.shp{flex:0 0 60px;display:flex;flex-direction:column;align-items:center;gap:7px;border:0;background:none;font-size:12px;color:#333;cursor:pointer;padding:0}
+.shp i{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;font-style:normal;font-weight:700;font-size:22px}
+.compose{position:absolute;inset:0;background:#fff;z-index:25;display:flex;flex-direction:column}
+.chead{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 10px}.chead .pcancel{font-size:15px}
+.cpost{border:0;background:#1d9bf0;color:#fff;border-radius:18px;padding:8px 18px;font-size:15px;font-weight:600;cursor:pointer}
+.ctext{flex:1;margin:4px 16px;border:0;resize:none;font:inherit;font-size:16px;line-height:1.5;outline:none}
+.cnote{font-size:12px;color:var(--muted);padding:10px 16px 18px;border-top:1px solid var(--line)}
 .dlginput{width:100%;box-sizing:border-box;border:1px solid #e3e3e6;background:#f6f6f7;border-radius:12px;padding:13px 14px;font-size:16px;margin:12px 0 16px}
 .pick{position:absolute;inset:0;background:#fff;z-index:15;display:flex;flex-direction:column}
 .phead{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 6px}
@@ -304,6 +321,9 @@ function initial(){
     focusSp:false,
     stack:[],
     sheet:null,
+    shareDraft:null,       // 正在创建的分享：{k, id, pub, exp}
+    fileShares:[],         // 文件 / 文件夹的分享记录
+    compose:null,          // 模拟第三方平台的发帖页
     dialog:null,
     toast:'',
     quotaBase:3440,        // 其他已用（示例），MB
@@ -621,7 +641,41 @@ A.doSaveSpace = id => {
     : `已保存 ${saved} / ${list.length}，存储容量不足，清理后可以保存全部`);
 };
 A.downloadOwn = () => toast('已开始下载（演示）');
-A.shareFile = () => toast('已复制分享链接（演示）');
+/* ---- 文件 / 文件夹分享：创建卡片 → 有效期 → 创建成功 → 复制或分享到平台 ---- */
+const SH_EXP = [[1, '24 小时'], [3, '3 天'], [7, '7 天'], [15, '15 天'], [30, '30 天']];
+const shExpLabel = d => SH_EXP.find(x => x[0] === d)[1];
+const rnd = (n, abc) => Array.from({length:n}, () => abc[Math.floor(Math.random() * abc.length)]).join('');
+const B62 = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+const clip = t => { try { navigator.clipboard.writeText(t).catch(() => {}); } catch (e) {} };
+const shareCopyText = x => x.pub ? x.url : `链接：${x.url} 提取码：${x.code}`;
+const sharePostText = x => `我通过 KiteBox 分享了「${x.name}」☁️\n点击或复制链接，可直接在 KiteBox App 中打开 👇 ${x.url}${x.pub ? '' : `\n提取码：${x.code}`}`;
+A.shareStart = (k, id) => { S.shareDraft = {k, id, pub:true, exp:7}; S.sheet = {type:'shareCreate'}; };
+A.shareTogglePub = () => { S.shareDraft.pub = !S.shareDraft.pub; S.sheet = {type:'shareCreate'}; };
+A.shareExpPick = () => { S.sheet = {type:'shareExp'}; };
+A.shareExpSet = d => { S.shareDraft.exp = d; S.sheet = {type:'shareCreate'}; };
+A.shareCreate = () => {
+  const d = S.shareDraft;
+  const x = {sid:'sh' + (S.nextN++), k:d.k, id:d.id, name:itemName(d.k, d.id), pub:d.pub, exp:d.exp,
+             url:'https://kitebox.io/s/' + rnd(8, B62), code:d.pub ? '' : rnd(4, B62), at:fmtNow()};
+  S.fileShares.unshift(x);
+  S.sheet = {type:'shareDone', sid:x.sid};
+};
+A.shareCopy = sid => { const x = S.fileShares.find(y => y.sid === sid); clip(shareCopyText(x)); toast(x.pub ? '链接已复制' : '链接和提取码已复制'); };
+A.sharePlat = (sid, p) => {
+  const x = S.fileShares.find(y => y.sid === sid);
+  if (p === 'more') { toast('打开系统分享面板（演示），内容同预填文案'); S.sheet = {type:'shareDone', sid}; return; }
+  if (p === 'Instagram' || p === 'Discord' || p === 'Facebook'){
+    // 这些平台不支持预填文字：先把完整文案复制到剪贴板，再打开 App
+    clip(sharePostText(x));
+    toast(`已复制分享文案，正在打开 ${p}，粘贴即可（演示）`);
+    S.sheet = {type:'shareDone', sid}; return;
+  }
+  S.compose = {sid, p, text:sharePostText(x)};
+};
+A.composeCancel = () => { const c = S.compose; S.compose = null; S.sheet = {type:'shareDone', sid:c.sid}; };
+A.composeSend = () => { const c = S.compose; S.compose = null; S.sheet = {type:'shareDone', sid:c.sid}; toast(`已发布到 ${c.p}（演示）`); };
+A.shareCancel = sid => { S.dialog = {title:'取消分享', body:'取消后链接和提取码立即失效，别人无法再打开。文件本身保留，别人已保存的副本不受影响。', ok:'取消分享', danger:true, name:'doShareCancel', args:[sid]}; };
+A.doShareCancel = sid => { S.fileShares = S.fileShares.filter(y => y.sid !== sid); toast('已取消分享，链接已失效'); };
 A.addFile = (kind) => {
   kind = kind || 'doc';
   const sz = kind === 'video' ? 120 : 3;
@@ -1190,9 +1244,7 @@ function vPreview(top){
     </div>`;
   let bottom;
   if (top.mode === 'own'){
-    bottom = `<div class="bottombar"><button class="btn" onclick="act('downloadOwn')">下载</button>${f.from
-      ? `<button class="btn" disabled>分享</button>`
-      : `<button class="btn primary" onclick="act('shareFile')">分享</button>`}</div>`;
+    bottom = `<div class="bottombar"><button class="btn" onclick="act('downloadOwn')">下载</button><button class="btn primary" onclick="act('shareStart','file','${f.id}')">分享</button></div>`;
   } else if (top.mode === 'owner'){
     bottom = `<div class="bottombar"><button class="btn" onclick="act('downloadOwn')">下载</button></div>`;
   } else {
@@ -1219,7 +1271,14 @@ function vStorage(){
 
 function vShares(){
   const mySpaces = S.spaces.filter(s => s.owner === 'me');
-  return `<div class="card">${mySpaces.map(s => `
+  return `<div class="tgroup" style="margin-top:4px">文件和文件夹</div><div class="card">${S.fileShares.map(x => `
+      <div class="row" style="cursor:default">
+        <div class="meta"><div class="name">${esc(x.name)}</div>
+          <div class="sub">${x.pub ? '公开访问' : '提取码 ' + x.code} · ${shExpLabel(x.exp)}有效 · ${x.at} 创建</div></div>
+        <button class="btn small" onclick="act('shareCopy','${x.sid}')">复制</button>
+        <button class="btn small" onclick="act('shareCancel','${x.sid}')">取消分享</button>
+      </div>`).join('') || '<div class="empty">还没有分享文件。在文件的「⋮」菜单点「分享」创建链接</div>'}</div>
+    <div class="tgroup">空间</div><div class="card">${mySpaces.map(s => `
       <div class="row">
         <div class="meta"><div class="name">${esc(s.name)}${s.shared ? '' : '<span class="chip warn">已停止分享</span>'}</div>
           <div class="sub">${s.files.length} 个文件</div></div>
@@ -1248,6 +1307,32 @@ function vMine(){
 /* ---------- overlays ---------- */
 function sheetHtml(sh){
   if (sh.type === 'folderMenu') return itemMenu(sh.k, sh.id, sh.fs);
+  if (sh.type === 'shareCreate'){
+    const d = S.shareDraft, f = d.k === 'file' ? S.mine.find(x => x.id === d.id) : null;
+    return `<div class="grab"></div><div class="name" style="text-align:center;font-size:17px;margin:4px 0 18px">${f ? '分享文件' : '分享文件夹'}</div>
+      <div class="shobj">${f ? thumb(f.kind) : folderIcon(40)}<div class="fn">${esc(itemName(d.k, d.id))}</div></div>
+      <div class="shbox">
+        <button class="shrow" onclick="act('shareTogglePub')"><div class="meta"><div class="t">公开访问</div><div class="d">${d.pub ? '拿到链接的人都可以访问' : '关闭后生成提取码，凭链接和提取码访问'}</div></div><span class="tgl${d.pub ? ' on' : ''}"><i></i></span></button>
+        <button class="shrow" onclick="act('shareExpPick')"><div class="meta"><div class="t">有效期</div><div class="d">${shExpLabel(d.exp)}</div></div>${svg('chev', 18)}</button>
+      </div>
+      <button class="shgo" onclick="act('shareCreate')">创建分享链接</button>`;
+  }
+  if (sh.type === 'shareExp'){
+    const d = S.shareDraft;
+    return `<div class="grab"></div><div class="name" style="text-align:center;font-size:17px;margin:4px 0 8px">有效期</div>`
+      + SH_EXP.map(x => `<button class="sheetbtn" style="display:flex;justify-content:space-between;align-items:center" onclick="act('shareExpSet',${x[0]})">${x[1]}<span class="radio${d.exp === x[0] ? ' on' : ''}">${d.exp === x[0] ? '✓' : ''}</span></button>`).join('')
+      + `<p class="sub wrap2" style="margin:14px 0 0;font-size:12px">到期前可以在「我的」→「我的分享」中手动取消分享。</p>`;
+  }
+  if (sh.type === 'shareDone'){
+    const x = S.fileShares.find(y => y.sid === sh.sid);
+    if (!x) return '';
+    const P = [['Facebook', '#1877f2', 'f'], ['X', '#111', 'X'], ['Telegram', '#2aabee', '<svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><path d="M21 4L2.8 11.2c-.9.4-.9 1 0 1.3l4.6 1.5 1.8 5.4c.2.6.4.7.9.3l2.6-2.2 4.8 3.6c.6.4 1.1.2 1.3-.6L22 5.2c.2-1-.3-1.5-1-1.2zM9 13.6l8.6-5.5-6.7 6.4-.3 3.1z"/></svg>'], ['Instagram', 'linear-gradient(45deg,#f9b233,#e1306c 55%,#833ab4)', '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17" cy="7" r=".6" fill="#fff"/></svg>'], ['Discord', '#5865f2', '<svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><path d="M18.6 6.2A15 15 0 0 0 15 5l-.5 1a13 13 0 0 0-5 0L9 5a15 15 0 0 0-3.6 1.2C3.1 9.6 2.5 13 2.8 16.3A15 15 0 0 0 7.3 18.6l.9-1.5-1.5-.7.4-.3a10.6 10.6 0 0 0 9.8 0l.4.3-1.5.7.9 1.5a15 15 0 0 0 4.5-2.3c.4-3.8-.6-7.2-2.6-10.1zM9.3 14.3c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.6.8 1.6 1.8-.7 1.8-1.6 1.8zm5.4 0c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.6.8 1.6 1.8-.7 1.8-1.6 1.8z"/></svg>'], ['WhatsApp', '#25d366', '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M4 20l1.2-3.8A8 8 0 1 1 8 19z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8a5 5 0 0 1-2.8-2.8l.8-1-1-2z" fill="#fff" stroke="none"/></svg>'], ['more', '#e9ebef', '<span style="color:#444;font-size:20px">⋯</span>']];
+    return `<div class="grab"></div><div class="shhead">分享链接已创建</div>
+      <div class="shlink"><span class="shlico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>
+        <div class="meta"><div class="shurl">${esc(x.url)}</div><div class="shmeta"><span>${x.pub ? '公开访问' : '提取码：' + x.code}</span><span>${shExpLabel(x.exp)}有效</span></div></div></div>
+      <button class="shgo" style="margin-top:4px" onclick="act('shareCopy','${x.sid}')">${x.pub ? '复制链接' : '复制链接和提取码'}</button>
+      <div class="shplat">${P.map(p => `<button class="shp" onclick="act('sharePlat','${x.sid}','${p[0]}')"><i style="background:${p[1]}">${p[2]}</i>${p[0] === 'more' ? '更多' : p[0]}</button>`).join('')}</div>`;
+  }
   if (sh.type === 'spaceMenu'){
     const s = getSpace(sh.id);
     if (!s) return '';
@@ -1340,7 +1425,7 @@ function itemMenu(k, id, fs){
   const key = `'${k}','${id}'`;
   return `<div class="grab"></div>`
     + (fs ? mi('folder', '打开所在文件夹', `act('openLoc',${key})`) : '')
-    + mi('share', '分享', "act('shareFile')")
+    + mi('share', '分享', `act('shareStart',${key})`)
     + (k === 'group' ? mi('space', '查看来源空间', `act('openSpace','${id}')`) : '')
     + '<hr class="mhr">'
     + mi('download', '下载', k === 'file' ? "act('downloadOwn')" : `act('downloadItem',${key})`)
@@ -1371,8 +1456,14 @@ function pickerHtml(){
       : `<div class="empty">这里还没有内容，可点下方「新建文件夹」</div>`}</div>
     <div class="pbar"><button class="pnew" onclick="act('newFolderStart','picker')">新建文件夹</button><button class="pgo" onclick="act('pkConfirm')">${verb}</button></div></div>`;
 }
+function composeHtml(){
+  const c = S.compose; if (!c) return '';
+  return `<div class="compose"><div class="chead"><button class="pcancel" onclick="act('composeCancel')">取消</button><span class="ptitle">${esc(c.p)}</span><button class="cpost" onclick="act('composeSend')">${c.p === 'X' ? '发布' : '发送'}</button></div>
+    <textarea class="ctext" aria-label="预填文案">${esc(c.text)}</textarea>
+    <div class="cnote">演示：模拟 ${esc(c.p)} 的发帖页，文案由 KiteBox 预填，用户可改。发布或取消后回到「分享链接已创建」面板。</div></div>`;
+}
 function overlays(){
-  let o = pickerHtml() + csHtml();
+  let o = pickerHtml() + csHtml() + composeHtml();
   if (S.sheet){
     o += `<div class="scrim" onclick="act('closeSheet')"><div class="sheet" onclick="event.stopPropagation()">${sheetHtml(S.sheet)}</div></div>`;
   }
@@ -1400,7 +1491,8 @@ function panel(){
         <li>在「空间」点「+」创建空间：只填名称就能创建；不填简介时卡片和详情不显示简介，不选背景图时显示灰底 + 文件夹图标。</li>
         <li>在自己的空间里点「⋯」→「编辑信息」，补充、修改或移除简介和背景图。</li>
         <li>打开「模板合集」，它已停止分享，关注者看到失效页，无法浏览。</li>
-        <li>在「我的」→「我的分享」里停止或重新分享「我的课程资料」。</li>
+        <li>在「文件」里点任一文件或文件夹的「⋮」→「分享」：设置公开访问和有效期，创建链接后复制，或点 X / Telegram / WhatsApp 看预填文案；关闭公开访问会生成提取码。</li>
+        <li>在「我的」→「我的分享」里查看和取消刚创建的文件分享，停止或重新分享「我的课程资料」。</li>
         <li>在「文件」里删除一个文件，观察确认文案和「不进回收站」的说明。</li>
         <li>在「首页」或「文件」点右上角搜索：未输入时显示搜索历史（点 ↖ 填入、点扫帚清空）；输入「封面」或「mp4」看结果，只搜云盘文件，不出现空间里的文件。</li>
         <li>在「我的课程资料」里点右下角「+」，选择照片、视频、文件或新建文件夹（和「文件」页一致）；上传无需审核，关注者立即可见，并出现在「更新」里。</li>
