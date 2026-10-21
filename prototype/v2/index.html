@@ -1338,7 +1338,7 @@ function itemMenu(k, id, fs){
   const mi = (ic, label, a, danger) => `<button class="mi${danger ? ' danger' : ''}" onclick="${a}"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${MI[ic]}</svg>${label}</button>`;
   if (itemName(k, id) === undefined) return '';
   const key = `'${k}','${id}'`;
-  return `<div class="grab"></div><div class="mname">${esc(itemName(k, id))}</div>`
+  return `<div class="grab"></div>`
     + (fs ? mi('folder', '打开所在文件夹', `act('openLoc',${key})`) : '')
     + mi('share', '分享', "act('shareFile')")
     + (k === 'group' ? mi('space', '查看来源空间', `act('openSpace','${id}')`) : '')
