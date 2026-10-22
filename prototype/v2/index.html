@@ -325,6 +325,15 @@ select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line
 .mvslide input{flex:1;accent-color:#3f6df0;height:20px}
 .mvkv{display:flex;justify-content:space-between;gap:12px;padding:11px 18px;font-size:13px;border-top:1px solid #2f3036}.mvkv span:last-child{color:#9a9da6;text-align:right}
 
+.splash{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;padding:0 28px 34px;z-index:40}
+.splash .slogo{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.splash .sbrand{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.splash .stag{font-size:15px;color:var(--muted)}
+.splash .shint{width:100%;background:var(--accent-soft);color:var(--accent);border-radius:12px;padding:10px 14px;font-size:13px;margin-bottom:14px;text-align:center}
+.splash .sbtn{width:100%;height:52px;border:0;border-radius:999px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px}
+.splash .sbtn.pri{background:#3a6df2;color:#fff}
+.splash .sbtn.sec{background:#eef0f3;color:#14161b}
+.splash .sterms{font-size:12px;color:#a3a8b2;text-align:center;margin-top:6px}
 @media (max-width:760px){
   .wrap{flex-direction:column;align-items:center;padding:12px 16px}
   .panel{position:static;width:100%;flex:none}
@@ -349,6 +358,8 @@ const KIND = {
 
 function initial(){
   return {
+    loggedIn:false,        // 未登录时停留在启动页
+    pendingLink:null,      // 未登录时从分享链接打开：登录后进入的页面
     tab:'home',
     homeSeg:'view',        // view | saved
     spaceSeg:'all',        // all | mine | follow
@@ -568,6 +579,15 @@ A.clearSaved = () => { S.dialog = {title:'清空最近保存', body:'只清除�
 A.doClearSaved = () => { S.mine.forEach(f => { if (f.from) f.savedHidden = true; }); toast('已清空记录'); };
 A.savedAll = () => { S.stack.push({v:'saved'}); };
 A.reset = () => { Object.assign(S, initial()); };
+// 登录：未登录时只能停留在启动页；登录成功后进入首页，从分享链接打开时进入链接对应页面
+A.login = () => {
+  S.loggedIn = true; S.tab = 'home'; S.stack = [];
+  const p = S.pendingLink; S.pendingLink = null;
+  if (p) A.openSpace(p);
+};
+A.logout = () => { S.dialog = {title:'退出登录', body:'退出后回到启动页，需要重新登录才能使用。', ok:'退出登录', danger:true, name:'doLogout', args:[]}; };
+A.doLogout = () => { S.loggedIn = false; S.pendingLink = null; S.stack = []; S.sheet = null; S.cs = null; S.tab = 'home'; };
+A.openLinkLoggedOut = () => { A.doLogout(); S.pendingLink = 's1'; };
 A.toastMsg = m => toast(m);
 A.transfer = () => { S.stack.push({v:'transfer'}); };
 A.trMenu = id => { S.sheet = {type:'trMenu', id}; };
@@ -1367,7 +1387,8 @@ function vMine(){
       ${mrow('gear', '设置', "act('toastMsg','设置页待设计（占位）')", true)}
       ${mrow('help', '帮助与反馈', "act('toastMsg','帮助与反馈页待设计（占位）')")}
       ${mrow('info', '关于 LinkSpace', "act('toastMsg','关于页待设计（占位）')")}
-    </div>`;
+    </div>
+    <button class="btn" style="width:100%;margin-top:18px;color:var(--danger)" onclick="act('logout')">退出登录</button>`;
 }
 
 /* ---------- overlays ---------- */
@@ -1549,10 +1570,12 @@ function overlays(){
 /* ---------- demo panel ---------- */
 function panel(){
   return `<h1>交互原型 · 演示控制</h1>
-    <p class="intro"><b>v2</b> · 2026-10-17 · 对齐 PRD v9 / 交互逻辑说明 v2。暂不含会员逻辑：空间内容可完整查看，保存只校验存储容量。含会员逻辑的旧版见 <a href="https://veloras08.github.io/pan-preview/prototype/" target="_blank" rel="noopener">v1</a>。</p>
-    <div class="field"><button class="btn" style="width:100%" onclick="act('reset')">重置演示</button></div>
+    <p class="intro"><b>v2</b> · 2026-10-22 · 对齐 PRD v9 / 交互逻辑说明 v2。未登录时停留在启动页，登录后才能使用。暂不含会员逻辑：空间内容可完整查看，保存只校验存储容量。含会员逻辑的旧版见 <a href="https://veloras08.github.io/pan-preview/prototype/" target="_blank" rel="noopener">v1</a>。</p>
+    <div class="field"><button class="btn" style="width:100%" onclick="act('reset')">重置演示（回到启动页）</button></div>
+    <div class="field"><button class="btn" style="width:100%" onclick="act('openLinkLoggedOut')">模拟：未登录时打开分享链接</button></div>
     <div class="guide"><h2>建议体验路径</h2>
       <ol>
+        <li>打开后先停在启动页：没有底部导航，只能点「登录」或「注册」（原型里点击即模拟登录成功），登录后进入首页。在「我的」点「退出登录」会回到启动页。点左侧「模拟：未登录时打开分享链接」，登录后直接进入「剪辑素材库」。</li>
         <li>进入「空间」→「剪辑素材库」，点「转场合集.mp4」完整播放，再点「保存到我的文件」直接保存。</li>
         <li>点「保存全部文件」保存整个空间，剩余容量不够时会部分保存并提示。</li>
         <li>在「空间」点「+」创建空间：只填名称就能创建；不填简介时卡片和详情不显示简介，不选背景图时显示灰底 + 文件夹图标。</li>
@@ -1926,8 +1949,29 @@ document.addEventListener('keydown', e => {
   else if (e.key === ' ' && mvCur(t).kind === 'video'){ e.preventDefault(); mvDo('mvToggle'); }
 });
 
+/* ---------- 启动页（未登录） ---------- */
+function splashHtml(){
+  const p = S.pendingLink ? getSpace(S.pendingLink) : null;
+  return `<div class="splash">
+      <div class="slogo">
+        <svg viewBox="0 0 100 116" width="96" height="112" aria-hidden="true"><path d="M50 6L90 46a8 8 0 0 1 0 11L57 90a8 8 0 0 1-11 0L10 57a8 8 0 0 1 0-11L44 12" fill="#2f66f0"/><path d="M57 6v30a6 6 0 0 0 6 6h30z" fill="#2fd1c4"/><path d="M51 92c-4 10 0 16 10 17" fill="none" stroke="#2f66f0" stroke-width="5" stroke-linecap="round"/></svg>
+        <div class="sbrand">KiteBox</div>
+        <div class="stag">整理、分享你的资源</div>
+      </div>
+      ${p ? `<div class="shint">登录后打开分享的空间「${esc(p.name)}」</div>` : ''}
+      <button class="sbtn pri" onclick="act('login')">登录</button>
+      <button class="sbtn sec" onclick="act('login')">注册</button>
+      <div class="sterms">登录即表示同意《用户协议》和《隐私政策》</div>
+    </div>`;
+}
+
 /* ---------- render ---------- */
 function render(){
+  if (!S.loggedIn){
+    $('phone').innerHTML = `<div class="screen">${splashHtml()}${overlays()}</div>`;
+    $('panel').innerHTML = panel();
+    return;
+  }
   const t = curTop();
   let title = '', right = '', body = '', bottom = '';
   if (!t){
